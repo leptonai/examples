@@ -46,6 +46,26 @@ from leptonai.client import Client
 c = Client("myworkspaceid", "sam", token="**mytoken**")
 ```
 
+For example, for the `counter` example running locally, you can interact with the photon in python:
+```python
+>> from leptonai.client import Client, local
+>> c = Client(local(port=8080))
+>> print(c.add.__doc__)
+Add
+
+Automatically inferred parameters from openapi:
+
+Input Schema (*=required):
+  x*: integer
+
+Output Schema:
+  output: integer
+>> c.add(x=10)
+10
+>> c.add(x=2)
+12
+```
+
 For more details, check out the [Quickstart](https://www.lepton.ai/docs/overview/quickstart), [Walkthrough](https://www.lepton.ai/docs/walkthrough/anatomy_of_a_photon), and the [client documentation](https://www.lepton.ai/docs/walkthrough/clients).
 
 

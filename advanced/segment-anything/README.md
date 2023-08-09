@@ -2,13 +2,9 @@
 
 This folder shows an end-to-end AI example, with Meta's most recent [Segment Anything](https://github.com/facebookresearch/segment-anything) model. Specifically, we will implement the functionality that takes an image and an optional prompt, and produces a segmentation mask, either as a list of structured boolean masks, or as a single overlayed image for display.
 
-A quick example is shown below:
+A quick example is shown below with input image and output mask:
 
-Input Image:
-![](assets/koala.jpeg)
-
-Output Image:
-![](assets/koala_segmented.jpg)
+<img src="assets/koala.jpeg" width=400><img src="assets/koala_segmented.jpg" width=400>
 
 Technically, this demo shows how to:
 - specify dependencies for a photon, including dependencies that are github repositories,

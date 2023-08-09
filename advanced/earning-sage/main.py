@@ -16,7 +16,7 @@ import gradio as gr
 def create_retriever(target_file):
     loader = CSVLoader(target_file, csv_args={"delimiter": "\t"})
     text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-        chunk_size=2048, chunk_overlap=0
+        chunk_size=256, chunk_overlap=0
     )
     docs = loader.load_and_split(text_splitter=text_splitter)
     embeddings = OpenAIEmbeddings()

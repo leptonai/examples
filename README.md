@@ -10,7 +10,6 @@ Feel free to modify and use these examples as a starting point for your own appl
 The example repo is organized into the following directories:
 - [getting-started](https://github.com/leptonai/examples/tree/main/getting-started): A collection of simple examples that demonstrate the basics of building and running simple photons, which are light-weight, single-file applications.
 - [advanced](https://github.com/leptonai/examples/tree/main/advanced): A collection of more complex examples that demonstrate how to build and run real-world applications, such as LLMs, image search, object segmentation, and more.
-- [notebooks](https://github.com/leptonai/examples/tree/main/notebooks): A collection of Jupyter notebooks that demonstrate how to use Lepton's Python SDK.
 
 For the full documentation, please visit [https://lepton.ai/docs](https://lepton.ai/docs).
 

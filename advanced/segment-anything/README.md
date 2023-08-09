@@ -1,0 +1,19 @@
+# Segment Anything Model
+
+This folder shows an end-to-end AI example, with Meta's most recent [Segment Anything](https://github.com/facebookresearch/segment-anything) model. Specifically, we will implement the functionality that takes an image and an optional prompt, and produces a segmentation mask, either as a list of structured boolean masks, or as a single overlayed image for display.
+
+A quick example is shown below:
+
+Input Image:
+![](assets/koala.jpeg)
+
+Output Image:
+![](assets/koala_segmented.jpg)
+
+Technically, this demo shows how to:
+- specify dependencies for a photon, including dependencies that are github repositories,
+- use the `@Photon.handler` decorator to define handlers for a photon, and annotate the arguments and return values for better user experience,
+- return different types of outputs from a photon deployment,
+- use the python client to connect and interact with the deployment in nontrivial ways.
+
+Check out `sam.py` for the actual implementation, and `segment-anything.ipynb` for a notebook demonstration.

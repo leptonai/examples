@@ -17,6 +17,7 @@ lep photon create -n earning-sage -m py:main.py
 # Running locally 
 lep photon run -n earning-sage --local
 # Running remotely, this requies login to lepton.ai 
+lep photon push -n earning-sage
 lep photon run -n earning-sage
 ```
 

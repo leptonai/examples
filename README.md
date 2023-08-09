@@ -2,6 +2,8 @@
 
 # Lepton Examples
 
+Note: we are currently in closed beta. To join the waiting list, kindly visit [https://lepton.ai/](https://lepton.ai/).
+
 This repo contains a collection of sample applications you can build and run with Lepton.
 Feel free to modify and use these examples as a starting point for your own applications.
 

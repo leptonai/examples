@@ -54,6 +54,9 @@ and invoke transcription or translation as follows:
 'We are an AI company.'
 ```
 
+
+WE DO NOTE that for the Whisper demo, the first call will be very slow. This is because jax needs to do a bit of compilation and initialization - after that, the subsequent calls will be much faster. You may find it surprising - but for many AI deployments, the first run is usually slower due to such initialization overheads. As a good practice, if your model has such overheads, you can always do a "warm-up" call before the actual inference traffic.
+
 ## Running a slack translation bot
 
 The whisper-jax example also demonstrates how to use Slack bot to trigger inference. To use this feature, you need to create a slack app, and set the following environment variables:
@@ -65,6 +68,7 @@ Let's go through the process one by one.
 ### Creating a slack app
 
 First you will need to create a slack app. Go to [https://api.slack.com/apps](https://api.slack.com/apps), and click "Create an App". Choose "From scratch", and select the app name and workspace you want to add the app to, like:
+
 <img src="assets/create_slack_app.png" width=400>
 
 In "OAuth & Permisions", add the following permissions to the app:

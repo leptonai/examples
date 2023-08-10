@@ -92,7 +92,9 @@ python whisper-jax.py
 ```
 
 You will need a public address for slack to connect. For example, if the whisper-jax bot tells you `Uvicorn running on http://0.0.0.0:8080`, and your public IP is `1.2.3.4`, you can go to the "Event Subscriptions" page of the slack app, and enable events like the following (make sure that the request URL says "Verified"):
-![](assets/event_subscription.png)
+
+<img src="assets/event_subscription.png" width=400>
+
 You should also be able to see the verification request from the logging info like
 ```
 2023-08-09 16:35:16,119 - INFO:     34.203.249.192:47706 - "POST /slack HTTP/1.1" 200 OK

@@ -132,10 +132,9 @@ class SAM(Photon):
         "predict_url",
         example={
             "url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Koala_climbing_tree.jpg",
-            "prompt": "Please segment the koala.",
         },
     )
-    def predict_url(self, url: str, prompt: Optional[str] = None) -> LeptonPickled:
+    def predict_url(self, url: str) -> LeptonPickled:
         """
         This is the predict_url endpoint. It takes in an image url, calls the mask generator, and
         returns the masks. We also do proper error handling here: if the image cannot opened, or
@@ -196,10 +195,9 @@ class SAM(Photon):
         "generate_mask",
         example={
             "url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Koala_climbing_tree.jpg",
-            "prompt": "Please segment the koala.",
         },
     )
-    def generate_mask(self, url: str, prompt: Optional[str] = None) -> PNGResponse:
+    def generate_mask(self, url: str) -> PNGResponse:
         """
         Generates a mask image for the segmentation result. This is similar to the predict_url
         endpoint, except that we will return a mask image instead of a python array of the raw

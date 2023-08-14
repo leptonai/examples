@@ -5,7 +5,7 @@ from diffusers import DiffusionPipeline
 from diffusers.pipelines.deepfloyd_if import fast27_timesteps, smart27_timesteps
 from diffusers.utils import pt_to_pil
 from loguru import logger
-import gradio as gr
+import gradio
 import torch
 
 from leptonai.photon import Photon, PNGResponse
@@ -158,14 +158,14 @@ class If(Photon):
     # With this, you can host both a Photon API and a Gradio UI on the same server.
     # Of course, make sure that you do not have a conflicting name for the handler.
     @Photon.handler(mount=True)
-    def ui(self) -> gr.Blocks:
-        blocks = gr.Blocks()
+    def ui(self) -> gradio.Blocks:
+        blocks = gradio.Blocks()
 
         with blocks:
-            with gr.Group():
-                with gr.Box():
-                    with gr.Row().style(mobile_collapse=False, equal_height=True):
-                        text = gr.Textbox(
+            with gradio.Group():
+                with gradio.Box():
+                    with gradio.Row().style(mobile_collapse=False, equal_height=True):
+                        text = gradio.Textbox(
                             label="Enter your prompt",
                             show_label=False,
                             max_lines=1,
@@ -175,16 +175,16 @@ class If(Photon):
                             rounded=(True, False, False, True),
                             container=False,
                         )
-                        btn = gr.Button("Generate image").style(
+                        btn = gradio.Button("Generate image").style(
                             margin=False,
                             rounded=(False, True, True, False),
                         )
-                gallery = gr.Gallery(
+                gallery = gradio.Gallery(
                     label="Generated images", show_label=False, elem_id="gallery"
-                ).style(grid=[3], height="auto")
+                ).style(grid=(3,), height="auto")
 
-            with gr.Row(elem_id="advanced-options"):
-                seed = gr.Slider(
+            with gradio.Row(elem_id="advanced-options"):
+                seed = gradio.Slider(
                     label="Seed",
                     minimum=0,
                     maximum=2147483647,
@@ -193,3 +193,8 @@ class If(Photon):
                 )
             btn.click(self._run, inputs=[text, seed], outputs=gallery)
         return blocks
+
+
+if __name__ == "__main__":
+    p = If()
+    p.launch()

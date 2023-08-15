@@ -9,7 +9,7 @@ import torch
 import validators
 
 from leptonai.photon import Photon, handler, HTTPException
-from leptonai.photon.types import lepton_unpickle, is_pickled
+from leptonai.photon.types import lepton_unpickle, is_pickled, LeptonPickled
 
 
 DEFAULT_MODEL_NAME = "ViT-B-32-quickgelu"
@@ -88,7 +88,7 @@ class Clip(Photon):
         return self.embed_image_local(raw_img)
 
     @handler("embed_pickle_image")
-    def embed_pickle_image(self, image) -> List[float]:
+    def embed_pickle_image(self, image: LeptonPickled) -> List[float]:
         print("Is the image passed in pickled ? :", is_pickled(image))
         try:
             raw_img = lepton_unpickle(image)

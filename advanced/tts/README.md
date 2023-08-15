@@ -4,8 +4,9 @@ This folder shows an end-to-end AI example, with the[Coqui AI TTS](https://githu
 
 With this demo, you will be able to run deepfloyd and get results like follows:
 
-
 <audio src="assets/thequickbrownfox.mp3" controls></audio>
+
+and you can check out more details in the `tts.ipynb` notebook.
 
 ## Implementation note: mounting a gradio server
 
@@ -45,5 +46,4 @@ Note: in default, the server is protected via a token, so you won't be able to a
 lep deployment update -n tts --public
 ```
 
-You can now use tts either via the UI or via the client. Here is a notebook example that interacts with the model:
-
+You can then use tts either via the UI or via the client. See the notebook example for more details.

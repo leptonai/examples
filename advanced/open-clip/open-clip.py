@@ -1,3 +1,56 @@
+"""
+This is a simple class that shows how to use the Photon SDK to create a
+common embedding service for text and image (assuming image urls), using the
+CLIP model. Note that for the sake of simplicity, the model is downloaded from
+the internet every time the photon is run. This is not recommended for
+production use though, but is fine if you are running prototypes.
+
+In default, this uses the ViT-B-32-quickgelu model with the laion400m_e32 pretrained weights.
+You can change the model and pretrained weights by passing in the MODEL_NAME and PRETRAINED
+environment variables when running the photon. However, we do not proactively sanity
+check the validity of the specified model name and pretrained weights name, so please
+make sure they are valid.
+
+To build the photon, do:
+
+    lep photon create -n clip -m open-clip.py:Clip
+
+To run the photon locally, simply do
+
+    lep photon run -n clip --local
+
+For other models, you can try adding --env arguments like:
+
+    --env DEFAULT_MODEL_NAME=ViT-B-32-quickgelu --env DEFAULT_PRETRAINED=laion400m_e32
+
+and the list of models can be found at
+    https://github.com/mlfoundations/open_clip/blob/main/src/open_clip/pretrained.py
+
+To deploy the photon, do
+
+    lep photon push -n clip
+    lep photon run -n clip -dn clip
+
+Or choose your own deployment name like "-dn my-clip-deployment".
+
+To test the photon, you can either use the API explorer in the UI, or use
+the photon client class in python, e.g.
+
+    from leptonai.client import Client
+    # If you are runnnig the photon remotely with workspace id "myworkspace"
+    # and deployment name "clip"
+    client = Client("myworkspace", "clip")
+    # Or if you are running the photon locally at port 8080
+    client = Client("http://localhost:8080")
+    # Do NOT run the above two commands at the same time! Choose only one.
+
+    # Now you can call the endpoints
+    vec = client.embed(query="people running by the sea"))
+    # Or call explicit functions:
+    vec = client.embed_text(query="people running by the sea"))
+    vec = client.embed_image(url="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Fermilab.jpg/800px-Fermilab.jpg")
+"""
+
 import io
 import os
 import urllib
@@ -81,10 +134,12 @@ class Clip(Photon):
         # open the imageurl and then read the content into a buffer
         try:
             raw_img = Image.open(io.BytesIO(urllib.request.urlopen(url).read()))
-        except:
+        except Exception as e:
             raise HTTPException(
-                status_code=400, detail=f"Cannot download image at url {url}."
-            )
+                status_code=400,
+                detail=(
+                    f"Cannot open image at url {url}. Detailed error message: {str(e)}"
+                ),
         return self.embed_image_local(raw_img)
 
     @handler("embed_pickle_image")

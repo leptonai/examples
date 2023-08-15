@@ -3,14 +3,13 @@ import os
 import requests
 from urllib.request import urlopen
 
-from typing import Optional
 from loguru import logger
 
 import numpy as np
 from PIL import Image
 
 from leptonai.photon import Photon, HTTPException, PNGResponse
-from leptonai.photon.types import lepton_pickle, LeptonPickled
+from leptonai.photon.types import lepton_pickle, LeptonPickled, lepton_unpickle
 
 from segment_anything import SamAutomaticMaskGenerator, SamPredictor, sam_model_registry
 import torch
@@ -246,6 +245,34 @@ class SAM(Photon):
         # the image back to the client. This is a convenience class that will set the
         # correct content type for the response.
         return PNGResponse(img_byte_array)
+
+    @Photon.handler("seg_from_pickle")
+    def seg_from_pickle(self, image: LeptonPickled) -> LeptonPickled:
+        """
+        This is an example of how to use the leptonai sdk to send a complex data structure
+        to the server side. In this case, we will send a pickled data structure to the server
+        side, and the server side will unpickle it and run the model.
+        """
+        try:
+            raw_img = np.asarray(lepton_unpickle(image))
+        except:
+            raise HTTPException(
+                status_code=400, detail="Cannot read image from bytes."
+            )
+
+        try:
+            masks = self.mask_generator.generate(raw_img)
+        except Exception as e:
+            print(e)
+            raise HTTPException(
+                status_code=500,
+                detail=(
+                    f"Cannot generate mask for image. Detailed error"
+                    f" message: {str(e)}"
+                ),
+            )
+
+        return lepton_pickle(masks, compression=9)
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ pip install -r requirements.txt
     
 ```bash
 # Create a photon
-lep photon create -n clip
+lep photon create -n clip -m open-clip.py
 # Run the photon locally
 lep photon run -n clip --local
 ```

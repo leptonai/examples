@@ -5,3 +5,4 @@ This folder contains simple examples to show the concepts of Lepton photons. Ple
 ## Example list
 - counter: simple demonstrative photons to implement a counter, and a safe counter using file as state storage. More related reads: [Anatomy of a photon](https://www.lepton.ai/docs/walkthrough/anatomy_of_a_photon), [Storage](https://www.lepton.ai/docs/advanced/storage)
 - shell: a photon that runs a simple shell, and returns stdout and stderr.
+- custom-image: an example that uses custom Docker image in your Photon.

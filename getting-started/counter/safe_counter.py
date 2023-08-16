@@ -116,8 +116,8 @@ if __name__ == "__main__":
     p = SafeCounter()
     if not os.path.exists(os.path.dirname(p.PATH)):
         raise RuntimeError(
-            "SafeCounter requires a Lepton storage to be attached to the deployment"
-            f"at {os.path.dirname(p.PATH)}, or if you are running locally, create the folder"
-            " first."
+            "SafeCounter requires a Lepton storage to be attached to the deploymentat"
+            f" {os.path.dirname(p.PATH)}, or if you are running locally, create the"
+            " folder first."
         )
     p.launch()

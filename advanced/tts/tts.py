@@ -48,7 +48,9 @@ class Speaker(Photon):
                 else:
                     logger.info("Using CPU")
                 self._model_name = name
-                self._model = TTS(name, progress_bar=False, gpu=torch.cuda.is_available())
+                self._model = TTS(
+                    name, progress_bar=False, gpu=torch.cuda.is_available()
+                )
                 logger.info(f"Loaded model {name}")
 
                 logger.info(f"Model has languages {self.languages}")
@@ -60,16 +62,10 @@ class Speaker(Photon):
                 self._model = TTS()
 
         return (
-            gr.Dropdown.update(
-                choices=self.languages,
-                visible=bool(self.languages)
-            ),
-            gr.Dropdown.update(
-                choices=self.speakers,
-                visible=bool(self.speakers)
-            ),
+            gr.Dropdown.update(choices=self.languages, visible=bool(self.languages)),
+            gr.Dropdown.update(choices=self.speakers, visible=bool(self.speakers)),
         )
-    
+
     @property
     def model_name(self) -> str:
         return self._model_name
@@ -120,11 +116,11 @@ class Speaker(Photon):
         self._model.synthesizer.save_wav(wav, wav_io)  # type: ignore
         wav_io.seek(0)
         return wav_io
-    
+
     ##########################################################################
     # Photon handlers that are exposed to the external clients.
     ##########################################################################
-    
+
     @Photon.handler()
     def list_languages(self) -> List[str]:
         """
@@ -132,7 +128,7 @@ class Speaker(Photon):
         if no model is loaded, or the model does not support multiple languages.
         """
         return self.languages
-    
+
     @Photon.handler()
     def list_speakers(self) -> List[str]:
         """
@@ -179,7 +175,6 @@ class Speaker(Photon):
                 status_code=500,
                 detail=f"Failed to synthesize speech. Detailed error: {e}",
             )
-        
 
     ##########################################################################
     # Note: we have intentionally commented out this path, because when we run
@@ -220,14 +215,14 @@ class Speaker(Photon):
     #             detail=f"Failed to load model {name}. Detailed error: {e}",
     #         )
     #     return True
-    
+
     # @Photon.handler()
     # def list_models(self) -> List[str]:
     #     """
     #     Returns a list of available models.
     #     """
     #     return TTS().list_models()
-    
+
     ##########################################################################
     # An UI wrapper around gradio.
     ##########################################################################
@@ -242,7 +237,7 @@ class Speaker(Photon):
                 # models in this way. See the comment above for more details.
                 # If you are running only one replica, you can uncomment the below
                 # line so you can dynamically load models.
-                #model = gr.Dropdown(choices=TTS().list_models(), label="Model")
+                # model = gr.Dropdown(choices=TTS().list_models(), label="Model")
                 model = gr.Dropdown(choices=[DEFAULT_MODEL_NAME], label="Model")
                 language = gr.Dropdown(label="Language", visible=False)
                 speaker = gr.Dropdown(label="Speaker", visible=False)

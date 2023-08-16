@@ -140,6 +140,7 @@ class Clip(Photon):
                 detail=(
                     f"Cannot open image at url {url}. Detailed error message: {str(e)}"
                 ),
+            )
         return self.embed_image_local(raw_img)
 
     @handler("embed_pickle_image")
@@ -147,8 +148,6 @@ class Clip(Photon):
         print("Is the image passed in pickled ? :", is_pickled(image))
         try:
             raw_img = lepton_unpickle(image)
-        except:
-            raise HTTPException(
-                status_code=400, detail="Cannot read image from bytes."
-            )
+        except Exception:
+            raise HTTPException(status_code=400, detail="Cannot read image from bytes.")
         return self.embed_image_local(raw_img)

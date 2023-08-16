@@ -20,6 +20,7 @@ class Shell(Photon):
 
         return stdout_output, stderr_output
 
+
 if __name__ == "__main__":
     shell = Shell()
     shell.launch()

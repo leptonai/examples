@@ -255,10 +255,8 @@ class SAM(Photon):
         """
         try:
             raw_img = np.asarray(lepton_unpickle(image))
-        except:
-            raise HTTPException(
-                status_code=400, detail="Cannot read image from bytes."
-            )
+        except Exception:
+            raise HTTPException(status_code=400, detail="Cannot read image from bytes.")
 
         try:
             masks = self.mask_generator.generate(raw_img)
@@ -267,8 +265,7 @@ class SAM(Photon):
             raise HTTPException(
                 status_code=500,
                 detail=(
-                    f"Cannot generate mask for image. Detailed error"
-                    f" message: {str(e)}"
+                    f"Cannot generate mask for image. Detailed error message: {str(e)}"
                 ),
             )
 

@@ -10,10 +10,11 @@ from leptonai.photon import Photon, PNGResponse
 
 class SDXL(Photon):
     requirement_dependency = [
-            "gradio",
-            "torch",
-            "diffusers>=0.19.0",
-            "invisible-watermark"]
+        "gradio",
+        "torch",
+        "diffusers>=0.19.0",
+        "invisible-watermark",
+    ]
 
     def init(self):
         cuda_available = torch.cuda.is_available()
@@ -35,7 +36,9 @@ class SDXL(Photon):
             # torch.compile is affected by the following issue. If you encounter problems,
             # comment the torch.compile line.
             # https://github.com/huggingface/diffusers/issues/4370
-            self.base.unet = torch.compile(self.base.unet, mode="reduce-overhead", fullgraph=True)
+            self.base.unet = torch.compile(
+                self.base.unet, mode="reduce-overhead", fullgraph=True
+            )
 
         self._refiner = None
 
@@ -55,7 +58,9 @@ class SDXL(Photon):
 
                 # torch.compile is affected by the following issue. If you encounter problems,
                 # comment the torch.compile line.
-                pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
+                pipe.unet = torch.compile(
+                    pipe.unet, mode="reduce-overhead", fullgraph=True
+                )
             self._refiner = pipe
         return self._refiner
 
@@ -245,6 +250,7 @@ class SDXL(Photon):
             )
 
         return blocks
+
 
 if __name__ == "__main__":
     p = SDXL()

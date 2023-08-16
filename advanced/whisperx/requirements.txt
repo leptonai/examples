@@ -1,0 +1,4 @@
+leptonai
+torch
+torchaudio
+git+https://github.com/m-bain/whisperx.git

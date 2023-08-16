@@ -140,6 +140,7 @@ class Clip(Photon):
                 detail=(
                     f"Cannot open image at url {url}. Detailed error message: {str(e)}"
                 ),
+            )
         return self.embed_image_local(raw_img)
 
     @handler("embed_pickle_image")

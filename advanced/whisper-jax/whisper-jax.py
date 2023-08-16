@@ -149,7 +149,7 @@ class Whisper(Photon):
             logger.info(f"Running inference on audio file: {f.name}")
             try:
                 text = self.run(f.name)
-            except Exception as e:
+            except Exception:
                 logger.error(f"Failed to run inference on audio file: {f.name}")
                 return
             logger.info(f"Finished inference on audio file: {f.name}")

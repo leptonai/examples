@@ -148,7 +148,7 @@ class Clip(Photon):
         print("Is the image passed in pickled ? :", is_pickled(image))
         try:
             raw_img = lepton_unpickle(image)
-        except:
+        except Exception:
             raise HTTPException(
                 status_code=400, detail="Cannot read image from bytes."
             )

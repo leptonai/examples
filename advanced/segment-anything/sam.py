@@ -255,7 +255,7 @@ class SAM(Photon):
         """
         try:
             raw_img = np.asarray(lepton_unpickle(image))
-        except:
+        except Exception:
             raise HTTPException(
                 status_code=400, detail="Cannot read image from bytes."
             )

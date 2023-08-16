@@ -149,7 +149,5 @@ class Clip(Photon):
         try:
             raw_img = lepton_unpickle(image)
         except Exception:
-            raise HTTPException(
-                status_code=400, detail="Cannot read image from bytes."
-            )
+            raise HTTPException(status_code=400, detail="Cannot read image from bytes.")
         return self.embed_image_local(raw_img)

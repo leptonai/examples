@@ -1,5 +1,9 @@
 # 🧙 Earning-Sage
-This is an earning call assistant built for investors to help them make better decisions. 
+Have you ever thought about joining an earning call and asking questions to these CFOs? That used to be the privilege held by the investors from high-end investment banks such as JP Morgan, Goldman Sachs and Morgan Stanley.
+
+Yet with the capability of LLM and proper techniques around it, not anymore. And if you don’t feel like reading the whole post, feel free to try out a demo [here](https://earningsage.lepton.run/). This demo is created based on the Apple Q2 2023 earning call.
+
+The full documentation can be found [here](https://www.lepton.ai/docs/examples/earning_sage).
 
 ## Getting Started
 

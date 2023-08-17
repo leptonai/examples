@@ -1,8 +1,6 @@
 # WhisperX
 
-This example demonstrates how to run the WhisperX model on Lepton.
-
-[WhisperX](https://github.com/m-bain/whisperX) is a JAX (optimized) port of the openai whisper model. It chunks audio data into segments and then performs batch inference to gain speedup.
+This example demonstrates how to run the WhisperX model on Lepton. [WhisperX](https://github.com/m-bain/whisperX) is similar to the whisper example, but does transcription, alignment, and diarization for the input.
 
 ## Note on custom environment
 

@@ -2,8 +2,6 @@
 
 # Lepton Examples
 
-Note: we are currently in closed beta. To join the waiting list, kindly visit [https://lepton.ai/](https://lepton.ai/).
-
 This repo contains a collection of sample applications you can build and run with Lepton.
 Feel free to modify and use these examples as a starting point for your own applications.
 
@@ -13,9 +11,24 @@ The example repo is organized into the following directories:
 
 For the full documentation, please visit [https://lepton.ai/docs](https://lepton.ai/docs).
 
+## Prerequisite
+
+Note: we are currently in closed beta. All examples in this folder are runnable locally. To run on the Lepton cloud, join the waiting list at [https://lepton.ai/](https://lepton.ai/).
+
+Install the lepton sdk via (the `--pre` and `-U` ensures the most recent version is installed):
+```python
+pip install --pre -U leptonai
+```
+
+For many examples in the [advanced](https://github.com/leptonai/examples/tree/main/advanced) folder, there are dependencies needed by the specific algorithms. It is recommended that you use virtual environments to not pollute your daily environment. For example, if you use conda, you can do:
+```shell
+conda create -n myenvironment python=3.10
+conda activate myenvironment
+```
+
 ## Running examples
 
-To run the examples, there are usually three ways:
+To run the examples in the respective folders, there are usually three ways:
 - Directly invoking the python code to run things locally, for example:
 ```bash
 python getting-started/counter/counter.py

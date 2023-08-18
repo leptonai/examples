@@ -83,6 +83,56 @@ Output Schema:
 For more details, check out the [Quickstart](https://www.lepton.ai/docs/overview/quickstart), [Walkthrough](https://www.lepton.ai/docs/walkthrough/anatomy_of_a_photon), and the [client documentation](https://www.lepton.ai/docs/walkthrough/clients).
 
 
+## Notes on huggingface access
+
+Sometimes, you might encounter errors accessing huggingface models, such as the following message when accessing `llama2`:
+```text
+Failed to create photon: 401 Client Error. (Request ID: Root=xxxxxxx)
+
+Cannot access gated repo for url https://huggingface.co/api/models/meta-llama/Llama-2-7b-hf.
+Repo model meta-llama/Llama-2-7b-hf is gated. You must be authenticated to access it.
+```
+This means that you did not have access to the repo, or you did not set up huggingface access tokens. We'll detail how to do so below.
+
+### Get access to the huggingface repo.
+Go to the corresponding huggingface repo, and accept the terms and conditions of the corresponding repository. For example, for llama2, the corresponding link is [https://huggingface.co/meta-llama/Llama-2-7b-hf](https://huggingface.co/meta-llama/Llama-2-7b-hf).
+
+### Set up credentials to access huggingface
+Your credential to access huggingface can be found online at [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens). To run things locally, you can do one of the following:
+- set the token as an environmental variable, with `export HUGGING_FACE_HUB_TOKEN=your_token_here`.
+- or, in your python environment, run the following command and login. Huggingface will store the credential in the local cache, usually `.huggingface/token`, for repeated usage:
+```python
+import huggingface_hub
+huggingface_hub.login()
+```
+
+If you are running on the Lepton cloud remotely, the easiest approach is to use the `secret` feature of Lepton. You can safely store the huggingface token as a secret via CLI:
+```shell
+lep secret create -n HUGGING_FACE_HUB_TOKEN -v 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
+```
+(Don't worry, the above token is only an example and isn't active.)
+
+You can verify the secret exists with `lep secret list`:
+```shell
+>> lep secret list
+               Secrets               
+┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ ID                     ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ HUGGING_FACE_HUB_TOKEN │ (hidden) │
+└────────────────────────┴──────────┘
+```
+
+And when you launch a photon, add `--secret`:
+```shell
+lep photon run -n myphoton --secret HUGGING_FACE_HUB_TOKEN
+```
+
+For more detailed information, check out the following resources:
+- [Huggingface's login reference](https://huggingface.co/docs/huggingface_hub/package_reference/login)
+- [Lepton documentation on secrets](https://www.lepton.ai/docs/advanced/env_n_secrets)
+- [An example showing huggingface access using the deepfloyd-if model](https://github.com/leptonai/examples/tree/main/advanced/deepfloyd-if)
+
 ## Contributing
 
 We love your feedback! If you would like to suggest example use cases, please [open an issue](https://github.com/leptonai/examples/issues/new). If you would like to contribute an example, kindly create a subfolder under `getting-started` or `advanced`, and submit a pull request.

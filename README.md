@@ -98,7 +98,9 @@ This means that you did not have access to the repo, or you did not set up huggi
 Go to the corresponding huggingface repo, and accept the terms and conditions of the corresponding repository. For example, for llama2, the corresponding link is [https://huggingface.co/meta-llama/Llama-2-7b-hf](https://huggingface.co/meta-llama/Llama-2-7b-hf).
 
 ### Set up credentials to access huggingface
-Your credential to access huggingface can be found online at [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens). To run things locally, you can do one of the following:
+Your credential to access huggingface can be found online at [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).
+
+If you are running photons locally, you can do one of the following:
 - set the token as an environmental variable, with `export HUGGING_FACE_HUB_TOKEN=your_token_here`.
 - or, in your python environment, run the following command and login. Huggingface will store the credential in the local cache, usually `.huggingface/token`, for repeated usage:
 ```python

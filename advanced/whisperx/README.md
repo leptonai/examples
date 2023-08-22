@@ -2,6 +2,8 @@
 
 This example demonstrates how to run the WhisperX model on Lepton. [WhisperX](https://github.com/m-bain/whisperX) is similar to the whisper example, but does transcription, alignment, and diarization for the input.
 
+The following example shows the WhisperX demo that allows one to very quickly recognize short audios. For long audios like podcasts, instead of having a long-waiting api, it is easier to build a service that does the actual recognition as a background task - see the notebook [What does a great podcast sound like?](audio_analysis.ipynb) as an end to end example.
+
 ## Note on custom environment
 
 Similar to the Whisper JAX example, if you are running locally, we recommend you to use a custom environment like `conda` or `virtualenv`.

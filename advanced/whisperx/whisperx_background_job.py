@@ -2,7 +2,7 @@ import json
 import os
 import sys
 import time
-from typing import List, Dict, Optional
+from typing import Dict, Optional
 import uuid
 
 from leptonai.photon import Photon, FileParam, HTTPException
@@ -35,12 +35,12 @@ class WhisperXBackground(Photon):
     system_dependencies = ["ffmpeg"]
 
     # Parameters for the photon.
-    # The photon will need to have a storage folder 
-    OUTPUT_ROOT=os.environ.get("WHISPERX_OUTPUT_ROOT", "/tmp/whisperx")
-    JOB_FILE_EXTENSION=".input"
-    OUTPUT_FILE_EXTENSION=".json"
-    OUTPUT_MAXIMUM_AGE = 60 * 60 * 24 # 1 day
-    CLEANUP_INTERVAL = 60 * 60 # 1 hour
+    # The photon will need to have a storage folder
+    OUTPUT_ROOT = os.environ.get("WHISPERX_OUTPUT_ROOT", "/tmp/whisperx")
+    JOB_FILE_EXTENSION = ".input"
+    OUTPUT_FILE_EXTENSION = ".json"
+    OUTPUT_MAXIMUM_AGE = 60 * 60 * 24  # 1 day
+    CLEANUP_INTERVAL = 60 * 60  # 1 hour
     LAST_CLEANUP_TIME = time.time()
 
     def init(self):
@@ -52,9 +52,7 @@ class WhisperXBackground(Photon):
         # 1. Load whisper model
         self.hf_token = os.environ.get("HUGGING_FACE_HUB_TOKEN", None)
         if not self.hf_token:
-            logger.error(
-                "Please set the environment variable HUGGING_FACE_HUB_TOKEN."
-            )
+            logger.error("Please set the environment variable HUGGING_FACE_HUB_TOKEN.")
             sys.exit(1)
         self.device = "cuda"
         compute_type = "float16"
@@ -73,7 +71,7 @@ class WhisperXBackground(Photon):
 
     def _gen_unique_filename(self) -> str:
         return str(uuid.uuid4())
-    
+
     def _regular_clean_up(self):
         if time.time() - self.LAST_CLEANUP_TIME < self.CLEANUP_INTERVAL:
             return
@@ -83,7 +81,11 @@ class WhisperXBackground(Photon):
             if filename.endswith(self.OUTPUT_FILE_EXTENSION):
                 filepath = os.path.join(self.OUTPUT_ROOT, filename)
                 # Checks if files are older than 1 hour. If so, delete them.
-                if os.path.isfile(filepath) and time.time() - os.path.getmtime(filepath) > self.OUTPUT_MAXIMUM_AGE:
+                if (
+                    os.path.isfile(filepath)
+                    and time.time() - os.path.getmtime(filepath)
+                    > self.OUTPUT_MAXIMUM_AGE
+                ):
                     os.remove(filepath)
 
     def _run_file_or_url(
@@ -101,8 +103,11 @@ class WhisperXBackground(Photon):
         try:
             audio = whisperx.load_audio(audio_file_or_url)
         except Exception as e:
-            errormsg = f"Cannot load audio at {audio_file_or_url}. Detailed error message: {str(e)}"
-            json.dump({'error': errormsg}, open(output_filepath, "w"))
+            errormsg = (
+                f"Cannot load audio at {audio_file_or_url}. Detailed error message:"
+                f" {str(e)}"
+            )
+            json.dump({"error": errormsg}, open(output_filepath, "w"))
             return
 
         result = self._model.transcribe(audio, batch_size=batch_size)
@@ -129,8 +134,15 @@ class WhisperXBackground(Photon):
         # print(result["segments"])  # after alignment
 
         # add min/max number of speakers if known
-        if min_speakers and max_speakers and min_speakers <= max_speakers and min_speakers > 0:
-            diarize_segments = self._diarize_model(audio, min_speakers=min_speakers, max_speakers=max_speakers)
+        if (
+            min_speakers
+            and max_speakers
+            and min_speakers <= max_speakers
+            and min_speakers > 0
+        ):
+            diarize_segments = self._diarize_model(
+                audio, min_speakers=min_speakers, max_speakers=max_speakers
+            )
         else:
             # ignore the hint and do diarization.
             diarize_segments = self._diarize_model(audio)
@@ -142,7 +154,7 @@ class WhisperXBackground(Photon):
         if audio_file_or_url.startswith(self.OUTPUT_ROOT):
             os.remove(audio_file_or_url)
         return
-    
+
     @Photon.handler(
         example={
             "filename": (
@@ -176,7 +188,11 @@ class WhisperXBackground(Photon):
         self.add_background_task(
             self._run_file_or_url,
             filename,
-            unique_name + self.OUTPUT_FILE_EXTENSION, batch_size, min_speakers, max_speakers)
+            unique_name + self.OUTPUT_FILE_EXTENSION,
+            batch_size,
+            min_speakers,
+            max_speakers,
+        )
         self._regular_clean_up()
         return {"task_id": unique_name}
 
@@ -207,15 +223,22 @@ class WhisperXBackground(Photon):
         For more details, refer to `/run`.
         """
         unique_name = self._gen_unique_filename()
-        task_file = os.path.join(self.OUTPUT_ROOT, unique_name + self.JOB_FILE_EXTENSION)
+        task_file = os.path.join(
+            self.OUTPUT_ROOT, unique_name + self.JOB_FILE_EXTENSION
+        )
         with open(task_file, "wb") as f:
             f.write(upload_file.file.read())
             f.flush()
         self.add_background_task(
-            self._run_file_or_url, task_file, unique_name + self.OUTPUT_FILE_EXTENSION, batch_size, min_speakers, max_speakers)
+            self._run_file_or_url,
+            task_file,
+            unique_name + self.OUTPUT_FILE_EXTENSION,
+            batch_size,
+            min_speakers,
+            max_speakers,
+        )
         self._regular_clean_up()
         return {"task_id": unique_name}
-    
 
     @Photon.handler
     def status(self, task_id: str) -> Dict[str, str]:
@@ -226,8 +249,12 @@ class WhisperXBackground(Photon):
             _ = uuid.UUID(task_id, version=4)
         except ValueError:
             return {"status": "invalid_task_id"}
-        input_filepath = os.path.join(self.OUTPUT_ROOT, task_id + self.JOB_FILE_EXTENSION)
-        output_filepath = os.path.join(self.OUTPUT_ROOT, task_id + self.OUTPUT_FILE_EXTENSION)
+        input_filepath = os.path.join(
+            self.OUTPUT_ROOT, task_id + self.JOB_FILE_EXTENSION
+        )
+        output_filepath = os.path.join(
+            self.OUTPUT_ROOT, task_id + self.OUTPUT_FILE_EXTENSION
+        )
         if not os.path.exists(output_filepath):
             if os.path.exists(input_filepath):
                 return {"status": "pending"}
@@ -235,7 +262,6 @@ class WhisperXBackground(Photon):
                 return {"status": "not_found"}
         else:
             return {"status": "ok"}
-    
 
     @Photon.handler
     def get_result(self, task_id: str) -> Dict:
@@ -244,7 +270,9 @@ class WhisperXBackground(Photon):
         Use `status(task_id=task_id)` to check if the task is finished.
         """
         if self.status(task_id=task_id)["status"] == "ok":
-            output_filepath = os.path.join(self.OUTPUT_ROOT, task_id + self.OUTPUT_FILE_EXTENSION)
+            output_filepath = os.path.join(
+                self.OUTPUT_ROOT, task_id + self.OUTPUT_FILE_EXTENSION
+            )
             return json.load(open(output_filepath, "r"))
         else:
             raise HTTPException(status_code=404, detail="result not found")
@@ -254,7 +282,13 @@ class WhisperXBackground(Photon):
         """
         Returns the current queue length.
         """
-        return len([f for f in os.listdir(self.OUTPUT_ROOT) if f.endswith(self.JOB_FILE_EXTENSION)])
+        return len(
+            [
+                f
+                for f in os.listdir(self.OUTPUT_ROOT)
+                if f.endswith(self.JOB_FILE_EXTENSION)
+            ]
+        )
 
 
 if __name__ == "__main__":

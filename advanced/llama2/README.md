@@ -15,7 +15,7 @@ openai.api_base = "https://llama2.lepton.run/api/v1"
 openai.api_key = "sk-" + "a" * 48
 ```
 
-After setting the `api_base` (and `api_key`) configuration, all existing code are compatible with Llama2 inference API e.g. the following typical Python code that uses OpenAI's ChatGPT API simply works without any modifications:
+After setting the `api_base` (and `api_key`) configuration, all existing code are compatible with Lepton's Llama2 inference API e.g. the following typical Python code that uses OpenAI's ChatGPT API simply works without any modifications:
 
 ```python
 sys_prompt = """
@@ -43,7 +43,7 @@ print()
 If fully managed api does not fit your use case, you can also easily launch a dedicated Llama2 model inference service on Lepton platform.
 
 Note:
-Meta hosts Llama2 models weights on Huggingface. You should obtain access to these models weights by going to the corresponding model page(e.g. [llama-2-7b-chat-hf](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf) and request for access. Once you have the access, go to Huggingface's [token management page](https://huggingface.co/settings/tokens) to generate a token.
+Meta hosts Llama2 models weights on Huggingface. You should obtain access to these models weights by going to the corresponding model page(e.g. [llama-2-7b-chat-hf](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf)) and request for access. Once you have the access, go to Huggingface's [token management page](https://huggingface.co/settings/tokens) to generate a token.
 
 ### Use Lepton's secret management
 

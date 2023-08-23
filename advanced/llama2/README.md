@@ -95,7 +95,7 @@ lep deployment update -n llama2 --public
 
 ### Client
 
-Once the inference service is up (either locally or in the cloude), you can use the client to access it in a programmatical way:
+Once the inference service is up (either locally or in the cloud), you can use the client to access it in a programmatical way:
 
 ```python
 >>> from leptonai.client import Client

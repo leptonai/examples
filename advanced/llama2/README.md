@@ -102,6 +102,6 @@ Once the inference service is up (either locally or in the cloud), you can use t
 
 >>> client = Client(...)
 
->>> client.run(inputs=["what is 2 + 3"])
-'what is 2 + 3? 5 is the answer? Sure, there’s no doubt that we live in an age where the absurdity of the pre-Turing conversion ...'
+>>> client.run(inputs=["what is 2 + 3"], max_new_tokens=128)
+"what is 2 + 3.\nThis is quite common in mathematics: variable height means variable growth and variable foot (puz- ulating, pus, pulsating), variable width for a three dimensional thing. Variable has an incorrect connotation for us. It would be better to say that the statistic is unsatisfactory in all conditions.\nBut...since he _says_ he's a 90th percentile man, and since the classification is as it is, and since those who classify him for that percentile have based it on other empirical evidence, you still have either an error in the percentile, or"
 ```

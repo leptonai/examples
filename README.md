@@ -15,9 +15,9 @@ For the full documentation, please visit [https://lepton.ai/docs](https://lepton
 
 Note: we are currently in closed beta. All examples in this folder are runnable locally. To run on the Lepton cloud, join the waiting list at [https://lepton.ai/](https://lepton.ai/).
 
-Install the lepton sdk via (the `--pre` and `-U` ensures the most recent version is installed):
+Install the lepton sdk via (the `-U` option ensures the most recent version is installed):
 ```python
-pip install --pre -U leptonai
+pip install -U leptonai
 ```
 
 For many examples in the [advanced](https://github.com/leptonai/examples/tree/main/advanced) folder, there are dependencies needed by the specific algorithms. It is recommended that you use virtual environments to not pollute your daily environment. For example, if you use conda, you can do:

@@ -14,6 +14,12 @@ lep photon run -n codellama -m photon.py
 ```
 Note that you will need to have a relatively large GPU (>=16GB memory).
 
+Use `MODEL` environment variable to switch to a different model in the CodeLlama family, e.g.
+
+```shell
+MODEL=codellama/CodeLlama-7b-Instruct-hf lep photon run -n codellama -m photon.py
+```
+
 ## Launch CodeLlama inference service in the cloud
 
 Similar to other examples, you can run CodeLlama with the following command. Use a reasonably sized GPU like `gpu.a10` to ensure that things run.
@@ -23,6 +29,15 @@ lep photon create -n codellama -m photon.py
 lep photon push -n codellama
 lep photon run \
     -n codellama \
+    --resource-shape gpu.a10
+```
+
+Use `MODEL` environment variable to switch to a different model in the CodeLlama family, e.g.
+
+```shell
+lep photon run \
+    -n codellama \
+    --env MODEL=codellama/CodeLlama-7b-Instruct-hf \
     --resource-shape gpu.a10
 ```
 
@@ -62,6 +77,32 @@ def ping_exponential_backoff(host: str):
     """Repeatedly try until ping succeeds"""
     for i in range(1,11):
         print('Ping attempt '+str(i))
+...
+'''
+```
+
+If you have chosen to use the "Instruct" models (e.g. the "codellama/CodeLlama-7b-Instruct-hf" one mentioned above), you can instruct/chat with the model:
+
+Instructions/Chat:
+```python
+>>> user = 'In Bash, how do I list all text files in the current directory (excluding subdirectories) that have been modified in the last month?'
+
+>>> prompt = f"<s>[INST] {user.strip()} [/INST]"
+
+>>> print(client.run(inputs=prompt, max_new_tokens=256)[len(prompt):])
+'''
+You can use the `find` command in Bash to list all text files in the current directory that have been modified in the last month. Here's an example command:
+```
+find. -type f -name "*.txt" -mtime -30
+```
+Here's how the command works:
+
+* `.` is the current directory.
+* `-type f` specifies that we want to find files (not directories).
+* `-name "*.txt"` specifies that we want to find files with the `.txt` extension.
+* `-mtime -30` specifies that we want to find files that have been modified in the last 30 days.
+
+The `-mtime` option takes a number of days as its argument, and the `-30` argument means "modified in the last 30 days".
 ...
 '''
 ```

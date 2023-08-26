@@ -84,7 +84,7 @@ def ping_exponential_backoff(host: str):
 If you have chosen to use the "Instruct" models (e.g. the "codellama/CodeLlama-7b-Instruct-hf" one mentioned above), you can instruct/chat with the model:
 
 Instructions/Chat:
-```python
+````python
 >>> user = 'In Bash, how do I list all text files in the current directory (excluding subdirectories) that have been modified in the last month?'
 
 >>> prompt = f"<s>[INST] {user.strip()} [/INST]"
@@ -105,4 +105,4 @@ Here's how the command works:
 The `-mtime` option takes a number of days as its argument, and the `-30` argument means "modified in the last 30 days".
 ...
 '''
-```
+````

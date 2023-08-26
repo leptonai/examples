@@ -2,7 +2,7 @@
 
 [CodeLlama](https://ai.meta.com/research/publications/code-llama-open-foundation-models-for-code/) released by Meta is a family of LLM based on Llama 2, providing code completion, infilling capabilities and zero-shot instruction following ability for programming tasks. In this example we are going to demonstrate how to run CodeLlama-7b model on Lepton.
 
-At the point of writing, running CodeLlama models relies on some relatively [new changes](https://github.com/huggingface/transformers/pull/25740) in HuggingFace Transformers that are not released yet, so please make sure install transformers from source until the next version is released:
+At the point of writing, running CodeLlama models relies on some relatively [new changes](https://github.com/huggingface/transformers/pull/25740) in HuggingFace Transformers that are not released yet, so please make sure to install transformers from source until the next version is released:
 
 `pip install git+https://github.com/huggingface/transformers.git@015f8e1 accelerate`
 
@@ -12,7 +12,7 @@ Ensure that you have installed the required dependencies. Then, run:
 ```shell
 lep photon run -n codellama -m photon.py
 ```
-Note that you will need to have a relatively large GPU (>20GB memory).
+Note that you will need to have a relatively large GPU (>=16GB memory).
 
 ## Launch CodeLlama inference service in the cloud
 

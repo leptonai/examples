@@ -80,6 +80,13 @@ image_bytes = c.inpaint(
 with open("inpaint_base64.png", "wb") as f:
     f.write(image_bytes)
 ```
+Image:
+<img src="assets/image.png" width=512>
+
+Mask:
+<img src="assets/mask.png" width=512>
+
+Result:
 <img src="assets/inpaint.png" width=1024>
 
 ## Dedicated SDXL inference service

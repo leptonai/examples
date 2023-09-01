@@ -47,8 +47,8 @@ from leptonai.photon import FileParam
 
 img_url = "https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo.png"
 mask_url = "https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo_mask.png"
-prompt = "A happy cat sitting on a bench"
-seed = 1234
+prompt = "Mickey mouse sitting on a bench"
+seed = 2236
 
 
 # Directly using urls to pass images

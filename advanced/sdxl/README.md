@@ -8,6 +8,72 @@ There are two ways to access SDXL model:
 
 Lepton provides the SDXL model as a fully managed api endpoints at https://sdxl.lepton.run. Users can easily use the lepton Python client or existing https request tool to generate high resolution realistic images right away.
 
+Creating the client:
+```python
+from leptonai.client import Client
+
+API_URL = "https://sdxl.lepton.run"
+TOKEN = "YOUR_TOKEN_HERE"
+
+c = Client(API_URL, token=TOKEN)
+```
+
+Text to Image:
+```python
+prompt = "A cat launching rockets into space"
+seed = 1234
+image_bytes = c.txt2img(prompt=prompt, seed=seed)
+with open("txt2img_prompt.png", "wb") as f:
+    f.write(image_bytes)
+```
+
+Text to Image (with refiner):
+```python
+prompt = "A cat launching rockets into space"
+seed = 1234
+image_bytes = c.txt2img(prompt=prompt, seed=seed, use_refiner=True)
+with open("txt2img_prompt_refiner.png", "wb") as f:
+    f.write(image_bytes)
+```
+
+Inpaint
+```python
+img_url = "https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo.png"
+mask_url = "https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo_mask.png"
+prompt = "A happy cat sitting on a bench"
+seed = 1234
+
+
+# Directly using urls to pass images
+image_bytes = c.inpaint(image=img_url, mask_image=mask_url, prompt=prompt, seed=seed)
+with open("inpaint_url.png", "wb") as f:
+    f.write(image_bytes)
+
+# Or use FileParam to send image files:
+img_content = requests.get(img_url).content
+mask_content = requests.get(mask_url).content
+image_bytes = c.inpaint(
+    image=FileParam(img_content),
+    mask_image=FileParam(mask_content),
+    prompt=prompt,
+    seed=seed,
+)
+with open("inpaint_file_param.png", "wb") as f:
+    f.write(image_bytes)
+
+# Or use base64 to encode image files:
+img_content = requests.get(img_url).content
+mask_content = requests.get(mask_url).content
+image_bytes = c.inpaint(
+    image=base64.b64encode(img_content).decode("ascii"),
+    mask_image=base64.b64encode(mask_content).decode("ascii"),
+    prompt=prompt,
+    seed=seed,
+)
+with open("inpaint_base64.png", "wb") as f:
+    f.write(image_bytes)
+```
+
 ## Dedicated SDXL inference service
 
 If fully managed api does not fit your use case, you can also easily launch a dedicated SDXL model inference service on Lepton platform.
@@ -47,8 +113,7 @@ Once the inference service is up (either locally or in the cloud), you can use t
 ```python
 from leptonai.client import Client
 
-SERVICE_URL = "https://sdxl.lepton.run"  # if use fully managed api
-# SERVICE_URL = "http://localhost:8080"  # if run locally
+SERVICE_URL = "http://localhost:8080"  # if run locally
 # SERVICE_URL = "DEPLOYMENT URL shown on Lepton Cloud Platform" # if run on the Lepton Cloud Platform
 
 c = Client(SERVICE_URL)

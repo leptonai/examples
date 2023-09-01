@@ -20,7 +20,7 @@ c = Client(API_URL, token=TOKEN)
 
 Text to Image:
 ```python
-prompt = "A cat launching rockets into space"
+prompt = "A cat launching rocket"
 seed = 1234
 image_bytes = c.txt2img(prompt=prompt, seed=seed)
 with open("txt2img_prompt.png", "wb") as f:
@@ -29,15 +29,22 @@ with open("txt2img_prompt.png", "wb") as f:
 
 Text to Image (with refiner):
 ```python
-prompt = "A cat launching rockets into space"
+prompt = "A cat launching rocket"
 seed = 1234
 image_bytes = c.txt2img(prompt=prompt, seed=seed, use_refiner=True)
 with open("txt2img_prompt_refiner.png", "wb") as f:
     f.write(image_bytes)
 ```
+<img src="assets/txt2img.png" width=1024>
 
 Inpaint
 ```python
+import base64
+import requests
+
+from leptonai.photon import FileParam
+
+
 img_url = "https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo.png"
 mask_url = "https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo_mask.png"
 prompt = "A happy cat sitting on a bench"
@@ -73,6 +80,7 @@ image_bytes = c.inpaint(
 with open("inpaint_base64.png", "wb") as f:
     f.write(image_bytes)
 ```
+<img src="assets/inpaint.png" width=1024>
 
 ## Dedicated SDXL inference service
 

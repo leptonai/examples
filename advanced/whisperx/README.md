@@ -90,7 +90,32 @@ and invoke transcription or translation as follows:
 
 ## Running with Lepton
 
-The above example runs on the local machine. If your machine does not have a public facing IP, or more commonly, you want a stable server environment to host your model - then running on the Lepton cloud platform is the best option. To run it on Lepton, you can simply create a photon and push it to the cloud:
+The above example runs on the local machine. If your machine does not have a public facing IP, or more commonly, you want a stable server environment to host your model - then running on the Lepton cloud platform is the best option. To run it on Lepton, you can simply create a photon and push it to the cloud.
+
+To have HuggingFace Hub API access function properly, we would also need it set as an available environment variable in the cloud. To do so, simply run the following command to store it as a [secret](https://www.lepton.ai/docs/advanced/env_n_secrets):
+
+```shell
+lep secret create -n HUGGING_FACE_HUB_TOKEN -v VALUE_OF_YOUR_TOKEN
+```
+
+You can run the following command to confirm that the secret is stored properly:
+
+```shell
+lep secret list
+```
+
+which should return something like below
+
+```txt
+               Secrets
+┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ ID                     ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ HUGGING_FACE_HUB_TOKEN │ (hidden) │
+└────────────────────────┴──────────┘
+```
+
+Now you can proceed to photo creation and deployment by running the following command:
 
 ```shell
 lep login

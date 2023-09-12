@@ -13,3 +13,14 @@ Technically, this demo shows how to:
 - use the python client to connect and interact with the deployment in nontrivial ways.
 
 Check out `sam.py` for the actual implementation, and `segment-anything.ipynb` for a notebook demonstration.
+
+To run it on Lepton AI platform, you can use the following command:
+
+```bash
+# Create a photon 
+lep photon create -n sam -m py:github.com/leptonai/examples.git:advanced/segment-anything/sam.py
+# Push the photon to the platform
+lep photon push -n sam
+# Run the SAM remotely
+lep photon run -n sam --resource-shape gpu.a10
+```

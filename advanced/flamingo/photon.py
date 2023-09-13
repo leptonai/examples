@@ -1,16 +1,59 @@
 import base64
 from io import BytesIO
+import os
 
 from typing import List, Union
 
 from leptonai.photon import Photon, FileParam, HTTPException
 
 
+# Pretrained models are obtained from https://github.com/mlfoundations/open_flamingo
+# and transcribed to the following dictionary.
+pretrained_models = {
+    "openflamingo/OpenFlamingo-3B-vitl-mpt1b": [
+        "ViT-L-14",
+        "openai",
+        "mosaicml/mpt-1b-redpajama-200b",
+        "mosaicml/mpt-1b-redpajama-200b",
+        1,
+    ],
+    "OpenFlamingo-3B-vitl-mpt1b-langinstruct": [
+        "ViT-L-14",
+        "openai",
+        "mosaicml/mpt-1b-redpajama-200b-dolly",
+        "mosaicml/mpt-1b-redpajama-200b-dolly",
+        1,
+    ],
+    "openflamingo/OpenFlamingo-4B-vitl-rpj3b": [
+        "ViT-L-14",
+        "openai",
+        "togethercomputer/RedPajama-INCITE-Base-3B-v1",
+        "togethercomputer/RedPajama-INCITE-Base-3B-v1",
+        2,
+    ],
+    "openflamingo/OpenFlamingo-4B-vitl-rpj3b-langinstruct": [
+        "ViT-L-14",
+        "openai",
+        "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
+        "togethercomputer/RedPajama-INCITE-Instruct-3B-v1",
+        2,
+    ],
+    "openflamingo/OpenFlamingo-9B-vitl-mpt7b": [
+        "ViT-L-14",
+        "openai",
+        "mosaicml/mpt-7b",
+        "mosaicml/mpt-7b",
+        4,
+    ],
+}
+
+
 class Flamingo(Photon):
-    requirement_depdency = ["open-flamingo", "huggingface-hub", "Pillow", "requests"]
+    requirement_dependency = ["open-flamingo", "huggingface-hub", "Pillow", "requests"]
 
     IMAGE_TOKEN = "<image>"
     END_OF_TEXT_TOKEN = "<|endofchunk|>"
+    DEFAULT_MODEL = "openflamingo/OpenFlamingo-3B-vitl-mpt1b"
 
     def init(self):
         from open_flamingo import create_model_and_transforms
@@ -22,25 +65,30 @@ class Flamingo(Photon):
         else:
             self.device = "cpu"
 
-        model, image_processor, tokenizer = create_model_and_transforms(
-            clip_vision_encoder_path="ViT-L-14",
-            clip_vision_encoder_pretrained="openai",
-            lang_encoder_path="anas-awadalla/mpt-1b-redpajama-200b",
-            tokenizer_path="anas-awadalla/mpt-1b-redpajama-200b",
-            cross_attn_every_n_layers=1,
+        model_name = os.environ.get("OPEN_FLAMINGO_MODEL", self.DEFAULT_MODEL)
+        try:
+            model_spec = pretrained_models[model_name]
+        except KeyError:
+            raise KeyError(
+                f"Model {model_name} not found in pretrained_models. Available models:"
+                f" {pretrained_models.keys()}"
+            )
+
+        self.model, self.image_processor, self.tokenizer = create_model_and_transforms(
+            clip_vision_encoder_path=model_spec[0],
+            clip_vision_encoder_pretrained=model_spec[1],
+            lang_encoder_path=model_spec[2],
+            tokenizer_path=model_spec[3],
+            cross_attn_every_n_layers=model_spec[4],
         )
 
         checkpoint_path = hf_hub_download(
             "openflamingo/OpenFlamingo-3B-vitl-mpt1b", "checkpoint.pt"
         )
-        model.load_state_dict(torch.load(checkpoint_path), strict=False)
-        model = model.to(self.device)
+        self.model.load_state_dict(torch.load(checkpoint_path), strict=False)
+        self.model = self.model.to(self.device)
 
-        tokenizer.padding_side = "left"
-
-        self.model = model
-        self.image_processor = image_processor
-        self.tokenizer = tokenizer
+        self.tokenizer.padding_side = "left"
 
     def _img_param_to_img(self, param):
         from PIL import Image

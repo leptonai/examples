@@ -302,9 +302,6 @@ class WhisperXBackground(Photon):
                 self.OUTPUT_ROOT, task_id + self.INPUT_FILE_EXTENSION
             )
             np.save(input_filepath, audio)
-            output_filepath = os.path.join(
-                self.OUTPUT_ROOT, task_id + self.OUTPUT_FILE_EXTENSION
-            )
             self.add_background_task(
                 self._run_whisperx,
                 input_filepath,

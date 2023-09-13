@@ -72,6 +72,7 @@ class CodeLlama(Photon):
         )
         return self._get_generated_text(res)
 
+
 if __name__ == "__main__":
     p = CodeLlama()
     p.launch()

@@ -1,23 +1,37 @@
+import base64
+import json
 import os
 import sys
+import time
 import tempfile
-from typing import List, Dict, Optional
+from threading import Lock
+from typing import Dict, Optional, Union
+import uuid
 
 import numpy as np
 
-import whisperx
-
+from leptonai.photon import Photon, FileParam, HTTPException
 from loguru import logger
 
-from leptonai.photon import Photon, FileParam, HTTPException
+# Note: instead of importing whisperx in the main file, we import it in the functions that
+# actually use whisperx. This enables local users who do not have whisperx installed to
+# still create the photon and run remotely.
+# import whisperx
 
 
-class WhisperXPhoton(Photon):
+class WhisperXBackground(Photon):
     """
     A WhisperX photon that serves the [WhisperX](https://github.com/m-bain/whisperX) model.
 
     The photon exposes two endpoints: `/run` and `/run_upload` that deals with files/urls
     and uploaded contents respectively. See the docs of each for details.
+
+    Different from the main WhisperX photon, this photon starts background tassks in the
+    background, so it handles requests more efficiently. For example, for the main photon,
+    if you run a prediction, it will block the server until the prediction is done, giving
+    a pretty bad user experience. This photon, on the other hand, will return immediately
+    with a task id. The user can then use the task id to query the status of the task, and
+    get the result when it is done.
     """
 
     requirement_dependency = [
@@ -29,13 +43,28 @@ class WhisperXPhoton(Photon):
 
     system_dependencies = ["ffmpeg"]
 
+    # Parameters for the photon.
+    # The photon will need to have a storage folder
+    OUTPUT_ROOT = os.environ.get("WHISPERX_OUTPUT_ROOT", "/tmp/whisperx")
+    INPUT_FILE_EXTENSION = ".npy"
+    OUTPUT_FILE_EXTENSION = ".json"
+    OUTPUT_MAXIMUM_AGE = 60 * 60 * 24  # 1 day
+    CLEANUP_INTERVAL = 60 * 60  # 1 hour
+    LAST_CLEANUP_TIME = time.time()
+    SUPPORTED_LANGUAGES = {"en", "fr", "de", "es", "it", "ja", "zh", "nl", "uk", "pt"}
+
     def init(self):
+        import whisperx
+
         logger.info("Initializing WhisperXPhoton")
+
+        # 0. Create output root, and launch a thread to clean up old files
+        os.makedirs(self.OUTPUT_ROOT, exist_ok=True)
+
+        # 1. Load whisper model
         self.hf_token = os.environ.get("HUGGING_FACE_HUB_TOKEN", None)
         if not self.hf_token:
-            logger.warning(
-                "Please set the environment variable HUGGING_FACE_HUB_TOKEN."
-            )
+            logger.error("Please set the environment variable HUGGING_FACE_HUB_TOKEN.")
             sys.exit(1)
         self.device = "cuda"
         compute_type = "float16"
@@ -43,154 +72,301 @@ class WhisperXPhoton(Photon):
             "large-v2", self.device, compute_type=compute_type
         )
 
-        self._language_code = "en"
-        # 2. Align whisper output
-        model_a, metadata = whisperx.load_align_model(
-            language_code=self._language_code, device=self.device
+        # 2. load whisper align model
+        self._model_a = {}
+        self._metadata = {}
+        self._model_a["en"], self._metadata["en"] = whisperx.load_align_model(
+            language_code="en", device=self.device
         )
+        self.align_model_lock = Lock()
         self._diarize_model = whisperx.DiarizationPipeline(
             use_auth_token=self.hf_token, device=self.device
         )
 
-    def _run_audio(
+    def _gen_unique_filename(self) -> str:
+        return str(uuid.uuid4())
+
+    def _regular_clean_up(self):
+        if time.time() - self.LAST_CLEANUP_TIME < self.CLEANUP_INTERVAL:
+            return
+        logger.info(f"Cleaning up {self.OUTPUT_ROOT} regularly")
+        self.LAST_CLEANUP_TIME = time.time()
+        for filename in os.listdir(self.OUTPUT_ROOT):
+            if filename.endswith(self.OUTPUT_FILE_EXTENSION):
+                filepath = os.path.join(self.OUTPUT_ROOT, filename)
+                # Checks if files are older than 1 hour. If so, delete them.
+                if (
+                    os.path.isfile(filepath)
+                    and time.time() - os.path.getmtime(filepath)
+                    > self.OUTPUT_MAXIMUM_AGE
+                ):
+                    os.remove(filepath)
+
+    def _run_whisperx(
         self,
-        audio: np.ndarray,
-        batch_size: int = 4,
+        audio: Union[np.ndarray, str],
+        language: Optional[str] = None,
         min_speakers: Optional[int] = None,
         max_speakers: Optional[int] = None,
-    ) -> List[Dict]:
+        transcribe_only: bool = False,
+        task_id: Optional[str] = None,
+    ) -> Optional[Dict]:
         """
         The main function that is called by the others.
         """
-        result = self._model.transcribe(audio, batch_size=batch_size)
+        import whisperx
+
+        batch_size = 16
+        start_time = time.time()
+
+        audio_filename = None
+        if isinstance(audio, str):
+            # Load the numpy array from the file
+            audio_filename = audio
+            logger.debug(f"Loading audio from file {audio_filename}.")
+            audio = np.load(audio)
+        logger.debug(f"started processing audio of length {len(audio)}.")
+        if task_id:
+            logger.debug(f"task_id: {task_id}")
+        result = self._model.transcribe(audio, batch_size=batch_size, language=language)
         # print(result["segments"])  # before alignment
 
-        if self._language_code != result["language"]:
-            self._model_a, self._metadata = whisperx.load_align_model(
-                language_code=result["language"], device=self.device
+        if not transcribe_only:
+            with self.align_model_lock:
+                if result["language"] not in self._model_a:
+                    (
+                        self._model_a[result["language"]],
+                        self._metadata[result["language"]],
+                    ) = whisperx.load_align_model(
+                        language_code=result["language"], device=self.device
+                    )
+            result = whisperx.align(
+                result["segments"],
+                self._model_a[result["language"]],
+                self._metadata[result["language"]],
+                audio,
+                self.device,
+                return_char_alignments=False,
             )
-            self._language_code = result["language"]
+            if (
+                min_speakers
+                and max_speakers
+                and min_speakers <= max_speakers
+                and min_speakers > 0
+            ):
+                diarize_segments = self._diarize_model(
+                    audio, min_speakers=min_speakers, max_speakers=max_speakers
+                )
+            else:
+                # ignore the hint and do diarization.
+                diarize_segments = self._diarize_model(audio)
+            result = whisperx.assign_word_speakers(diarize_segments, result)
 
-        # 2. Align whisper output
-        model_a, metadata = whisperx.load_align_model(
-            language_code=result["language"], device=self.device
-        )
-        result = whisperx.align(
-            result["segments"],
-            model_a,
-            metadata,
-            audio,
-            self.device,
-            return_char_alignments=False,
-        )
-
-        # print(result["segments"])  # after alignment
-
-        # add min/max number of speakers if known
-        diarize_segments = self._diarize_model(audio)
-        # diarize_model(audio, min_speakers=min_speakers, max_speakers=max_speakers)
-
-        result = whisperx.assign_word_speakers(diarize_segments, result)
-        print(diarize_segments)
-        # return result["segments"]  # segments are now assigned speaker IDs
-        return result["segments"]
+        if audio_filename:
+            os.remove(audio_filename)
+        if task_id is None:
+            total_time = time.time() - start_time
+            logger.debug(
+                f"finished processing task {task_id}. Audio len: {audio.size} Total"
+                f" time: {total_time} ({audio.size / 16000 / total_time} x realtime)"
+            )
+            return result["segments"]
+        else:
+            # return result["segments"]  # segments are now assigned speaker IDs
+            output_filepath = os.path.join(
+                self.OUTPUT_ROOT, task_id + self.OUTPUT_FILE_EXTENSION
+            )
+            json.dump(result["segments"], open(output_filepath, "w"))
+            self._regular_clean_up()
+            total_time = time.time() - start_time
+            logger.debug(
+                f"finished processing task {task_id}. Audio len: {audio.size} Total"
+                f" time: {total_time} ({audio.size / 16000 / total_time} x realtime)"
+            )
+            return
 
     @Photon.handler(
         example={
-            "filename": (
+            "input": (
                 "https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/1.flac"
             ),
+            "language": "en",
+            "transcribe_only": True,
         }
     )
     def run(
         self,
-        filename: str,
-        batch_size: int = 4,
+        input: Union[FileParam, str],
+        language: Optional[str] = None,
         min_speakers: Optional[int] = None,
         max_speakers: Optional[int] = None,
-    ) -> List[Dict]:
+        transcribe_only: bool = False,
+    ) -> Dict:
         """
         Runs transcription, alignment, and diarization for the input.
 
         - Inputs:
-            - filename: a url containing the audio file, or a local file path if running
+            - input: a url containing the audio file, or a base64-encoded string containing an
+                audio file, or a lepton.photon.FileParam, or a local file path if running
                 locally.
-            - batch_size(optional): the batch size to run whisperx inference.
+            - language(optional): the language code for the input. If not provided, the model
+                will try to detect the language automatically (note this runs more slowly)
             - min_speakers(optional): the hint for minimum number of speakers for diarization.
             - max_speakers(optional): the hint for maximum number of speakers for diarization.
+            - transcribe_only(optional): if True, only transcribe the audio, and skip alignment
+                and diarization.
 
         - Returns:
-            - result: a list of dictionary, each containing one classified segment. Each
-                segment is a dictionary containing the following keys: `start` and `end`
-                specifying the start and end time of the segment in seconds, `text` as
-                the recognized text, `words` that contains segmented words and corresponding
-                speaker IDs.
-            - 404: if the file cannot be loaded.
-            - 500: if internal error occurs.
+            - result: if the input audio is less than 60 seconds, we will directly return the
+                result.
+            - task: a dictionary with key `task_id` and value the task uuid. Use `status(**task)`
+                to query the task status, and `get_result(**task)` to get the result when the
+                status is "ok".
+        """
+        import whisperx
+
+        if language is not None and language not in self.SUPPORTED_LANGUAGES:
+            raise HTTPException(
+                400,
+                f"Unsupported language: {language}. Supported languages:"
+                f" {self.SUPPORTED_LANGUAGES}",
+            )
+        if min_speakers is not None and min_speakers < 1:
+            raise HTTPException(400, f"min_speakers must be >= 1, got {min_speakers}")
+        if max_speakers is not None and max_speakers < 1:
+            raise HTTPException(400, f"max_speakers must be >= 1, got {max_speakers}")
+        if (
+            min_speakers is not None
+            and max_speakers is not None
+            and min_speakers > max_speakers
+        ):
+            raise HTTPException(
+                400,
+                f"min_speakers must be <= max_speakers, got {min_speakers} >"
+                f" {max_speakers}",
+            )
+
+        try:
+            if isinstance(input, FileParam):
+                # We write the content at input.file to a temporary file, then call whisperx.load_audio
+                # to load the audio from the temporary file.
+                with tempfile.NamedTemporaryFile() as f:
+                    f.write(input.file.read())
+                    f.flush()
+                    filename = f.name
+                    audio = whisperx.load_audio(filename)
+            elif input.startswith("http://") or input.startswith("https://"):
+                # This is a url, we can directly pass it to whisperx.load_audio
+                audio = whisperx.load_audio(input)
+            else:
+                # As a fallback option, we will assume that this is a base64 encoded string.
+                # We write the content at input to a temporary file, then call whisperx.load_audio
+                # to load the audio from the temporary file.
+                if input.startswith("data:audio/wav;base64,"):
+                    input = input[22:]
+                with tempfile.NamedTemporaryFile() as f:
+                    decoded_data = base64.b64decode(input)
+                    f.write(decoded_data)
+                    f.flush()
+                    filename = f.name
+                    audio = whisperx.load_audio(filename)
+        except Exception:
+            raise HTTPException(
+                400,
+                "Invalid input. Please check your input, it should be a FileParam"
+                " (python), a url, or a base64 encoded string.",
+            )
+
+        SAMPLE_RATE = 16000  # The default sample rate that whisperx uses
+        if len(audio) < SAMPLE_RATE * 60:
+            # For audio shorter than 1 minute, directly compute and return the result.
+            ret = self._run_whisperx(
+                audio,
+                language,
+                min_speakers,
+                max_speakers,
+                transcribe_only,
+            )
+            if not ret:
+                raise HTTPException(
+                    500, "You hit a programming error - please let us know."
+                )
+            else:
+                return ret
+        elif len(audio) > SAMPLE_RATE * 60 * 60:
+            # For audio longer than 90 minutes, raise an error.
+            raise HTTPException(400, "Audio longer than 60 minutes is not supported.")
+        else:
+            task_id = self._gen_unique_filename()
+            input_filepath = os.path.join(
+                self.OUTPUT_ROOT, task_id + self.INPUT_FILE_EXTENSION
+            )
+            np.save(input_filepath, audio)
+            output_filepath = os.path.join(
+                self.OUTPUT_ROOT, task_id + self.OUTPUT_FILE_EXTENSION
+            )
+            self.add_background_task(
+                self._run_whisperx,
+                input_filepath,
+                language,
+                min_speakers,
+                max_speakers,
+                transcribe_only,
+                task_id,
+            )
+            self._regular_clean_up()
+            return {"task_id": task_id}
+
+    @Photon.handler
+    def status(self, task_id: str) -> Dict[str, str]:
+        """
+        Returns the status of the task. It could be "invalid_task_id", "pending", "not_found", or "ok".
         """
         try:
-            audio = whisperx.load_audio(filename)
-        except Exception as e:
-            raise HTTPException(
-                status_code=404,
-                detail=(
-                    f"Cannot load audio at {filename}. Detailed error message: {str(e)}"
-                ),
-            )
-        return self._run_audio(audio, batch_size, min_speakers, max_speakers)
+            _ = uuid.UUID(task_id, version=4)
+        except ValueError:
+            return {"status": "invalid_task_id"}
+        input_filepath = os.path.join(
+            self.OUTPUT_ROOT, task_id + self.INPUT_FILE_EXTENSION
+        )
+        output_filepath = os.path.join(
+            self.OUTPUT_ROOT, task_id + self.OUTPUT_FILE_EXTENSION
+        )
+        if not os.path.exists(output_filepath):
+            if os.path.exists(input_filepath):
+                return {"status": "pending"}
+            else:
+                return {"status": "not_found"}
+        else:
+            return {"status": "ok"}
 
-    @Photon.handler(
-        example={
-            "upload_file": (
-                "(please use python) FileParam(open('path/to/your/file.wav', 'rb'))"
-            ),
-        }
-    )
-    def run_upload(
-        self,
-        upload_file: FileParam,
-        batch_size: int = 4,
-        min_speakers: Optional[int] = None,
-        max_speakers: Optional[int] = None,
-    ) -> List[Dict]:
+    @Photon.handler
+    def get_result(self, task_id: str) -> Dict:
         """
-        Runs transcription, alignment, and diarization for the input.
-
-        Everything is the same as the `/run` path, except that the input is uploaded
-        as a file. If you are using the lepton python client, you can achieve so by
-            from leptonai.photon import FileParam
-            from leptonai.client import Client
-            client = Client(PUT_YOUR_SERVER_INFO_HERE)
-            client.run_upload(upload_file=FileParam(open("path/to/your/file.wav", "rb")))
-
-        For more details, refer to `/run`.
+        Gets the result of the whisper x task. If the task is not finished, it will raise a 404 error.
+        Use `status(task_id=task_id)` to check if the task is finished.
         """
-        logger.info(f"upload_file: {upload_file}")
-        # Whisper at this moment only reads contents from file, so we will have to
-        # write it to a temporary file
-        tmpfile = tempfile.NamedTemporaryFile()
-        with open(tmpfile.name, "wb") as f:
-            f.write(upload_file.file.read())
-            f.flush()
-        logger.info(f"tmpfile: {tmpfile.name}")
-        try:
-            audio = whisperx.load_audio(tmpfile.name)
-        except Exception as e:
-            logger.info(f"encountered error. returning 500. Detailed: {e}")
-            raise HTTPException(
-                status_code=500,
-                detail=(
-                    "Cannot load audio with uploaded content. Detailed error"
-                    f" message: {str(e)}"
-                ),
+        if self.status(task_id=task_id)["status"] == "ok":
+            output_filepath = os.path.join(
+                self.OUTPUT_ROOT, task_id + self.OUTPUT_FILE_EXTENSION
             )
-        logger.info("Started running WhisperX")
-        ret = self._run_audio(audio, batch_size, min_speakers, max_speakers)
-        # remove temporary file
-        tmpfile.close()
-        return ret
+            return json.load(open(output_filepath, "r"))
+        else:
+            raise HTTPException(status_code=404, detail="result not found")
+
+    def queue_length(self) -> int:
+        """
+        Returns the current queue length.
+        """
+        return len(
+            [
+                f
+                for f in os.listdir(self.OUTPUT_ROOT)
+                if f.endswith(self.INPUT_FILE_EXTENSION)
+            ]
+        )
 
 
 if __name__ == "__main__":
-    p = WhisperXPhoton()
+    p = WhisperXBackground()
     p.launch()

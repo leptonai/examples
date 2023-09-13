@@ -13,7 +13,6 @@ Usually, when you run different AI models, they require specific dependencies th
 This is where having a separate service like Lepton becomes super useful: we can create a python environment (using e.g. conda or virtualenv), installed the required dependencies, run the photon as a web service, and then in the regular python environment, simply call the web service as if we were using a regular python function. Comparing to some apparent choices:
 
 - unlike a single python environment, we don't need to resolve version conflicts of different algorithms;
-- unlike packing everything in a separate opaque container image, we are much more lightweighted: only a python environment and dependencies are needed.
 
 ## Prerequisite
 
@@ -57,7 +56,7 @@ c = Client(local())
 and invoke transcription or translation as follows:
 
 ```python
->> c.run(filename="assets/thequickbrownfox.wav")
+>> c.run(input=FileParam(open("assets/thequickbrownfox.mp3", "rb")))
 [{'start': 0.028,
   'end': 2.06,
   'text': ' A quick brown fox jumps over the lazy dog.',
@@ -164,7 +163,7 @@ To access the model, we can create a client similar to the local case, simply re
 >> from leptonai.client import Client
 >> from leptonai.photon import FileParam
 >> c = Client("YOUR_WORKSPACE_NAME", "whisperx", token="YOUR_TOKEN")
->> c.run_upload(upload_file=FileParam(open("assets/thequickbrownfox.mp3", "rb")))
+>> c.run(input=FileParam(open("assets/thequickbrownfox.mp3", "rb")))
 [{'start': 0.028,
   'end': 2.06,
   'text': ' A quick brown fox jumps over the lazy dog.',

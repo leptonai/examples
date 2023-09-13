@@ -27,7 +27,9 @@ lep photon run \
     --resource-shape gpu.a10
 ```
 
-And visit [dashboard.lepton.ai](https://dashboard.lepton.ai/) to try out the model.
+Optionally, add e.g. `--env OPEN_FLAMINGO_MODEL:openflamingo/OpenFlamingo-4B-vitl-rpj3b` to specify the model you would like to run. The supported model names can be found in the open-flamingo repository's README file.
+
+You can visit [dashboard.lepton.ai](https://dashboard.lepton.ai/) to try out the model.
 
 Note: in default, the server is protected via a token, so you won't be able to access the gradio UI. This is by design to provide adequate security. If you want to make the UI public, you can either add the `--public` argument to `lep photon run`, or update the deployment with:
 

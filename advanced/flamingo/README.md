@@ -42,9 +42,13 @@ lep deployment update -n flamingo --public
 Once the inference service is up (either locally or in the cloud), you can use the client to access it in a programmatical way:
 
 ```python
-from leptonai.client import Client
+from leptonai.client import Client, local, current
 
-client = Client(...)
+# Use this if you are running locally
+client = Client(local())
+# Or, if you are logged in to your workspace via `lep login` already
+# and have launched it:
+# client = Client(current(), "flamingo")
 
 inputs = {
   "demo_images": [

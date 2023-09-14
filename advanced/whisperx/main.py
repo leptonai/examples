@@ -129,7 +129,9 @@ class WhisperXBackground(Photon):
         if task_id:
             logger.debug(f"task_id: {task_id}")
         result = self._model.transcribe(audio, batch_size=batch_size, language=language)
-        # print(result["segments"])  # before alignment
+        if len(result["segments"]) == 0:
+            logger.debug("Empty result from whisperx. Directly return empty.")
+            return []
 
         if not transcribe_only:
             with self.align_model_lock:
@@ -148,19 +150,25 @@ class WhisperXBackground(Photon):
                 self.device,
                 return_char_alignments=False,
             )
-            if (
-                min_speakers
-                and max_speakers
-                and min_speakers <= max_speakers
-                and min_speakers > 0
-            ):
-                diarize_segments = self._diarize_model(
-                    audio, min_speakers=min_speakers, max_speakers=max_speakers
-                )
+            # When there is no active diarization, the diarize model throws a KeyError.
+            # In this case, we simply skip diarization.
+            try:
+                if (
+                    min_speakers
+                    and max_speakers
+                    and min_speakers <= max_speakers
+                    and min_speakers > 0
+                ):
+                    diarize_segments = self._diarize_model(
+                        audio, min_speakers=min_speakers, max_speakers=max_speakers
+                    )
+                else:
+                    # ignore the hint and do diarization.
+                    diarize_segments = self._diarize_model(audio)
+            except Exception as e:
+                logger.error(f"Error in diarization: {e}. Skipping diarization.")
             else:
-                # ignore the hint and do diarization.
-                diarize_segments = self._diarize_model(audio)
-            result = whisperx.assign_word_speakers(diarize_segments, result)
+                result = whisperx.assign_word_speakers(diarize_segments, result)
 
         if audio_filename:
             os.remove(audio_filename)
@@ -287,7 +295,7 @@ class WhisperXBackground(Photon):
                 max_speakers,
                 transcribe_only,
             )
-            if not ret:
+            if ret is None:
                 raise HTTPException(
                     500, "You hit a programming error - please let us know."
                 )

@@ -9,6 +9,13 @@ pip install leptonai
 
 ## Launch inference service locally
 
+To run locally, first install dependencies:
+```shell
+pip install -r requirements.txt
+```
+
+After installing dependencies, you can launch inference service locally by running:
+
 ### Image Captioning
 
 ```shell

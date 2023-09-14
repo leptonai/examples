@@ -1,0 +1,4 @@
+salesforce-lavis
+Pillow
+opencv-python!=4.8.0.76
+opencv-contrib-python!=4.8.0.76

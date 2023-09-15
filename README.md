@@ -2,7 +2,8 @@
 
 # Lepton Examples
 
-This repo contains a collection of sample applications you can build and run with Lepton.
+This repository contains a collection of example photons built with the [Lepton AI sdk](https://github.com/leptonai/leptonai-sdk/).
+
 Feel free to modify and use these examples as a starting point for your own applications.
 
 The example repo is organized into the following directories:

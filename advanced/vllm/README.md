@@ -91,10 +91,10 @@ for message in completion:
 print()
 ```
 
-```
+````
 Sure! Here's an example of how you could create a user table in SQL and randomly insert 3 records:
 
-````
+```
 CREATE TABLE users (
   id INT PRIMARY KEY,
   name VARCHAR(50),
@@ -106,7 +106,7 @@ VALUES
   (1, 'John Doe', 'johndoe@example.com'),
   (2, 'Jane Doe', 'janedoe@example.com'),
   (3, 'Bob Smith', 'bobsmith@example.com');
-````
+```
 
 This will create a table called `users` with columns for `id`, `name`, and `email`. The `id` column will be used as the primary key for the table.
 
@@ -114,4 +114,4 @@ The `INSERT INTO` statement is used to insert data into the table. The values fo
 
 * `1, 'John Doe', 'johndoe@example.com'`
 * `2, 'Jane Doe', 'janedoe@example.
-```
+````

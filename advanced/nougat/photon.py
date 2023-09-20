@@ -37,7 +37,7 @@ class Nougat(Photon):
         if torch.cuda.is_available():
             model = model.to("cuda")
         self.model = model.to(torch.bfloat16).eval()
-        self.batch_size = os.environ.get("BATCH_SIZE", 8)
+        self.batch_size = os.environ.get("BATCH_SIZE", 4)
 
     def iter_batch(self, iterable, batch_size):
         for start in range(0, len(iterable), batch_size):

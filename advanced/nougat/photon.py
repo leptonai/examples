@@ -1,4 +1,3 @@
-from functools import partial
 from io import BytesIO
 import os
 import traceback
@@ -79,7 +78,7 @@ class Nougat(Photon):
         try:
             content = get_file_content(file)
             pdf = pypdf.PdfReader(BytesIO(content))
-        except Exception as e:
+        except Exception:
             logger.error(traceback.format_exc())
             raise HTTPException(status_code=400, detail="Failed to read PDF file.")
 

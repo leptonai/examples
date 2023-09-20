@@ -1,6 +1,6 @@
 # Nougat
 
-[Nougat](https://github.com/facebookresearch/nougat) Neural Optical Understanding for Academic Documents is a Visual Transformer model that performs an Optical Character Recognition (OCR) task for processing scientific documents into a markup language. In this example, we are going to show how to use Nougat to turn scanned PDF files (human readable documents) to markups (machine-readable text).
+[Nougat](https://github.com/facebookresearch/nougat) (Neural Optical Understanding for Academic Documents) is a Visual Transformer model that performs an Optical Character Recognition (OCR) task for processing scientific documents into a markup language. In this example, we are going to show how to use Nougat to turn scanned PDF files (human readable documents) to markups (machine-readable text).
 
 ## Install Lepton sdk
 ```shell

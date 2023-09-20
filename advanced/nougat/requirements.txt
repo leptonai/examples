@@ -1,0 +1,5 @@
+git+https://github.com/facebookresearch/nougat.git@84b3ae1
+torch
+pypdf
+loguru
+opencv-python!=4.8.0.76

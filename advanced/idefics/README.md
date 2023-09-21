@@ -1,6 +1,6 @@
 # IDEFICS
 
-[IDEFICS](https://huggingface.co/blog/idefics) IDEFICS is a multimodal model that accepts sequences of images and texts as input and generates coherent text as output. It can answer questions about images, describe visual content, create stories grounded in multiple images, etc. IDEFICS is an open-access reproduction of Flamingo and is comparable in performance with the original closed-source model across various image-text understanding benchmarks. It comes in two variants - 80 billion parameters and 9 billion parameters. In this example, we are going to use the 9 billion parameters version of the model to demonstrate how to do multimodal text generation on Lepton.
+[IDEFICS](https://huggingface.co/blog/idefics) is a multimodal model that accepts sequences of images and texts as input and generates coherent text as output. It can answer questions about images, describe visual content, create stories grounded in multiple images, etc. IDEFICS is an open-access reproduction of Flamingo and is comparable in performance with the original closed-source model across various image-text understanding benchmarks. It comes in two variants - 80 billion parameters and 9 billion parameters. In this example, we are going to use the 9 billion parameters version of the model to demonstrate how to do multimodal text generation on Lepton.
 
 ## Install Lepton sdk
 ```shell

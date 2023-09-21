@@ -1,3 +1,5 @@
+accelerate
 Pillow
 torch
 transformers
+protobuf

@@ -7,9 +7,11 @@ from leptonai.photon import Photon, FileParam
 
 class IDEFICS(Photon):
     requirement_dependency = [
+        "accelerate",
         "Pillow",
         "torch",
         "transformers",
+        "protobuf",
     ]
 
     def init(self):
@@ -20,7 +22,7 @@ class IDEFICS(Photon):
 
         checkpoint = os.environ.get("MODEL", "HuggingFaceM4/idefics-9b-instruct")
         self.model = IdeficsForVisionText2Text.from_pretrained(
-            checkpoint, torch_dtype=torch.bfloat16
+            checkpoint, torch_dtype=torch.bfloat16, low_cpu_mem_usage=True
         ).to(self.device)
         self.processor = AutoProcessor.from_pretrained(checkpoint)
 

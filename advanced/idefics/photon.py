@@ -46,7 +46,7 @@ class IDEFICS(Photon):
         eos_token: str = "<end_of_utterance>",
         bad_words: List[str] = ["<image>", "<fake_token_around_image>"],
         max_length: int = 256,
-        **kwargs
+        **kwargs,
     ) -> Union[str, List[str]]:
         from PIL import Image
 

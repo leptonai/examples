@@ -50,6 +50,8 @@ client = Client(local())
 # client = Client(current(), "clip-interrogator", token=YOUR_WORKSPACE_TOKEN)
 ```
 
+![two-cats](assets/two-cats.jpg)
+
 ```python
 image = "http://images.cocodataset.org/val2017/000000039769.jpg"
 prompt = client.run(image=image)

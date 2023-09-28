@@ -58,9 +58,12 @@ print(prompt)
 ```
 
 
-Image: ![two-cats](assets/two-cats.jpg)
+Image:
+
+![two-cats](assets/two-cats.jpg)
 
 Prompt:
+
 ```
 two cats laying on a couch with remote controls on the back, on flickr in 2007, <pointé pose>;open mouth, vhs artifacts, inspired by Frédéric Bazille, long - haired siberian cat, inflateble shapes, on a hot australian day, circa 2 0 0 8, at midday, size difference, aliasing visible
 ```

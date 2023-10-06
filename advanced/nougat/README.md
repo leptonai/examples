@@ -36,7 +36,7 @@ lep photon create -n nougat -m photon.py
 lep photon push -n nougat
 lep photon run \
     -n nougat \
-    --resource-shape gpu.t4
+    --resource-shape gpu.a10
 ```
 
 You can visit [dashboard.lepton.ai](https://dashboard.lepton.ai/) to try out the model.

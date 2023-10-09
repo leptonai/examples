@@ -124,7 +124,7 @@ class SAM(Photon):
     # request. When you use the leptonai sdk or web UI, the examples will help the
     # user understand how to use your photon.
     #
-    # For the funciton itself, it is recommended that you type annotate the inputs
+    # For the function itself, it is recommended that you type annotate the inputs
     # and outputs. This will make it easier for lepton to generate the client side
     # documentation.
     @Photon.handler(

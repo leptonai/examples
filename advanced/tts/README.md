@@ -1,6 +1,6 @@
 # TTS
 
-This folder shows an end-to-end AI example, with the[Coqui AI TTS](https://github.com/coqui-ai/TTS/) text-to-speech library. The demo also shows how to run a photon with multimedia outputs (in this case a WAV response.)
+This folder shows an end-to-end AI example, with the [Coqui AI TTS](https://github.com/coqui-ai/TTS/) text-to-speech library. The demo also shows how to run a photon with multimedia outputs (in this case a WAV response.)
 
 With this demo, you will be able to run deepfloyd and get results like follows:
 

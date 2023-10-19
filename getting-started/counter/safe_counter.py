@@ -26,6 +26,7 @@ the photon client class in python, e.g.
 etc. You can try to stop and restart safe counter and see that the counter
 is persistent.
 """
+
 import errno
 import fcntl
 import os

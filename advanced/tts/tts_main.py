@@ -15,10 +15,6 @@ from leptonai.photon import (
 )
 
 
-# By using XTTS you agree to CPML license https://coqui.ai/cpml
-os.environ["COQUI_TOS_AGREED"] = "1"
-
-
 class Speaker(Photon):
     """
     A TTS service that supports multiple models provided by coqui and others.
@@ -39,7 +35,7 @@ class Speaker(Photon):
 
     MODEL_NAME = "tts_models/en/vctk/vits"
     # Or, you can choose some other models
-    #MODEL_NAME = "tts_models/multilingual/multi-dataset/xtts_v1"
+    # MODEL_NAME = "tts_models/multilingual/multi-dataset/xtts_v1"
 
     # If you want to load multiple models at the same time, you can put it here
     # as a comma-separated string. For example:
@@ -52,6 +48,10 @@ class Speaker(Photon):
         """
         Initialize a default model.
         """
+
+        # By using XTTS you agree to CPML license https://coqui.ai/cpml
+        os.environ["COQUI_TOS_AGREED"] = "1"
+
         from TTS.api import TTS
 
         self._models: Dict[Union[str, None], TTS] = {}
@@ -60,7 +60,9 @@ class Speaker(Photon):
         self.MODEL_NAME = os.environ.get("MODEL_NAME", self.MODEL_NAME).strip()
 
         self.PRELOAD_MODELS = [
-            m for m in os.environ.get("PRELOAD_MODELS", self.PRELOAD_MODELS).strip().split(",") if m
+            m
+            for m in os.environ.get("PRELOAD_MODELS", self.PRELOAD_MODELS).split(",")
+            if m
         ]
         if self.MODEL_NAME not in self.PRELOAD_MODELS:
             self.PRELOAD_MODELS.append(self.MODEL_NAME)

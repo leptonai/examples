@@ -16,9 +16,6 @@ from leptonai.photon import (
     get_file_content,
 )
 
-# By using XTTS you agree to CPML license https://coqui.ai/cpml
-os.environ["COQUI_TOS_AGREED"] = "1"
-
 
 class XTTSSpeaker(Photon):
     """
@@ -42,6 +39,10 @@ class XTTSSpeaker(Photon):
         """
         Initialize a default model.
         """
+
+        # By using XTTS you agree to CPML license https://coqui.ai/cpml
+        os.environ["COQUI_TOS_AGREED"] = "1"
+
         import torch
         from TTS.tts.configs.xtts_config import XttsConfig
         from TTS.tts.models.xtts import Xtts

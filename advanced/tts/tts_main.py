@@ -61,9 +61,7 @@ class Speaker(Photon):
 
         self.PRELOAD_MODELS = [
             m
-            for m in os.environ.get("PRELOAD_MODELS", self.PRELOAD_MODELS)
-            .strip()
-            .split(",")
+            for m in os.environ.get("PRELOAD_MODELS", self.PRELOAD_MODELS).split(",")
             if m
         ]
         if self.MODEL_NAME not in self.PRELOAD_MODELS:

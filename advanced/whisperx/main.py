@@ -363,13 +363,11 @@ class WhisperXBackground(Photon):
         """
         Returns the current queue length.
         """
-        return len(
-            [
-                f
-                for f in os.listdir(self.OUTPUT_ROOT)
-                if f.endswith(self.INPUT_FILE_EXTENSION)
-            ]
-        )
+        return len([
+            f
+            for f in os.listdir(self.OUTPUT_ROOT)
+            if f.endswith(self.INPUT_FILE_EXTENSION)
+        ])
 
 
 if __name__ == "__main__":

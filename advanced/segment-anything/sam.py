@@ -144,7 +144,7 @@ class SAM(Photon):
         # urllib to do this. Note that this is just an example - you can use any method
         # to download the image.
         try:
-            raw_img = np.asarray(Image.open(io.BytesIO(urlopen(url).read())))
+            raw_img = np.asarray(Image.open(io.BytesIO(urlopen(url).read())).convert("RGB"))
         except Exception as e:
             # HTTPException is a special exception that will be translated to a proper
             # http error by fastAPI and return to the user side. In this case, we will
@@ -203,7 +203,7 @@ class SAM(Photon):
         masks.
         """
         try:
-            raw_img = np.asarray(Image.open(io.BytesIO(urlopen(url).read())))
+            raw_img = np.asarray(Image.open(io.BytesIO(urlopen(url).read())).convert("RGB"))
         except Exception as e:
             raise HTTPException(
                 status_code=400,

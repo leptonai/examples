@@ -226,12 +226,14 @@ class Speaker(Photon):
         if tts_model.is_multi_lingual and language is None:
             raise HTTPException(
                 status_code=400,
-                detail="Model is multi-lingual, you should pass in language.",
+                detail="Model is multi-lingual, you should pass in language. \
+                    Use GET /languages to get available languages",
             )
         if tts_model.is_multi_speaker and speaker is None:
             raise HTTPException(
                 status_code=400,
-                detail="Model is multi-speaker, you should pass in speaker.",
+                detail="Model is multi-speaker, you should pass in speaker. \
+                    Use GET /speakers to get available speakers",
             )
 
         try:

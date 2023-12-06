@@ -1,8 +1,7 @@
-import base64
 import os
 import sys
 import time
-from typing import List, Dict, Optional, Union
+from typing import List, Optional, Union
 
 from threading import Lock
 import numpy as np
@@ -50,7 +49,7 @@ class WhisperX(Photon):
         },
         "secret": [
             "HUGGING_FACE_HUB_TOKEN",
-        ]
+        ],
     }
 
     handler_max_concurrency = 8
@@ -94,7 +93,10 @@ class WhisperX(Photon):
         # We keep a main model as MAIN_LANGUAGE so we don't need to always reload
         # tokenizers. We also keep a multilingual model that can handle all languages.
         self._main_model = whisperx.load_model(
-            self.WHISPER_MODEL, self.device, compute_type=compute_type, language=self.MAIN_LANGUAGE,
+            self.WHISPER_MODEL,
+            self.device,
+            compute_type=compute_type,
+            language=self.MAIN_LANGUAGE,
         )
         self._multilingual_model = FasterWhisperPipeline(
             model=self._main_model.model,
@@ -123,30 +125,33 @@ class WhisperX(Photon):
 
         # 3. load whisper diarize model. Diarization model right now is thread safe.
         self._diarize_model = whisperx.DiarizationPipeline(
-            model_name='pyannote/speaker-diarization@2.1', use_auth_token=self.hf_token, device=self.device
+            model_name="pyannote/speaker-diarization@2.1",
+            use_auth_token=self.hf_token,
+            device=self.device,
         )
         self._diarize_model_lock = Lock()
 
-    def _transcribe(self, audio: np.ndarray, audio_file, language: Optional[str] = None):
-        logger.debug(f"transcribe: aquiring lock")
+    def _transcribe(
+        self, audio: np.ndarray, audio_file, language: Optional[str] = None
+    ):
+        logger.debug("transcribe: aquiring lock")
         with self.transcribe_model_lock:
-            logger.debug(f"transcribe: lock acquired")
+            logger.debug("transcribe: lock acquired")
             if language == self.MAIN_LANGUAGE:
                 result = self._main_model.transcribe(
-                    audio,
-                    batch_size=self.DEFAULT_BATCH_SIZE,
-                    language=language)
+                    audio, batch_size=self.DEFAULT_BATCH_SIZE, language=language
+                )
             else:
                 result = self._multilingual_model.transcribe(
-                    audio,
-                    batch_size=self.DEFAULT_BATCH_SIZE,
-                    language=language)
-        logger.debug(f"transcribe: lock released")
+                    audio, batch_size=self.DEFAULT_BATCH_SIZE, language=language
+                )
+        logger.debug("transcribe: lock released")
         return result
 
     def _align(self, result, audio):
         # Run alignment
         import whisperx
+
         logger.debug("Start alignment")
         if result["language"] in self.SUPPORTED_LANGUAGES:
             model_a = self._model_a[result["language"]]
@@ -167,7 +172,7 @@ class WhisperX(Photon):
             )
         logger.debug("alignment done.")
         return result
-    
+
     def _diarize(self, audio, min_speakers, max_speakers):
         logger.debug("Start diarization")
         with self._diarize_model_lock:
@@ -254,12 +259,12 @@ class WhisperX(Photon):
         # uses a different loading mechanism, and as a result it is slightly different from
         # the whisperx loaded audio.
         result = self._transcribe(audio, audio_file, language=language)
-        logger.debug(f"Transcription done.")
+        logger.debug("Transcription done.")
 
         if len(result["segments"]) == 0:
             logger.debug("Empty result from whisperx. Directly return empty.")
             return []
-        
+
         if transcribe_only:
             total_time = time.time() - start_time
             logger.debug(

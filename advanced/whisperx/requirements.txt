@@ -1,4 +1,5 @@
-leptonai
 torch
 torchaudio
-git+https://github.com/m-bain/whisperx.git
+leptonai
+pyannote.audio
+git+https://github.com/m-bain/whisperx.git@e9c507ce5dea0f93318746411c03fed0926b70be

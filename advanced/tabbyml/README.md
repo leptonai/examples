@@ -20,7 +20,7 @@ lep photon run \
     --public
 ```
 
-You can visit [dashboard.lepton.ai](https://dashboard.lepton.ai/) to try out the model, or use `lep` cli to manage the launched deployment:
+You can visit [dashboard.lepton.ai](https://dashboard.lepton.ai/) to use the web Dashboard, or use `lep` cli to manage the launched deployment:
 ```shell
 lep deployment status -n tabby
 ```

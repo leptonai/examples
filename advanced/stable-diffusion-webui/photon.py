@@ -1,5 +1,3 @@
-import os
-
 from leptonai.photon import Photon
 
 

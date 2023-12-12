@@ -2,7 +2,7 @@ from leptonai.photon import Photon
 
 
 class WebUI(Photon):
-    webui_version = "1.6.0"
+    webui_version = "v1.6.0"
     cmd = [
         "bash",
         "-c",

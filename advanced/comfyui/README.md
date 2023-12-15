@@ -12,17 +12,17 @@ pip install leptonai
 Similar to other examples, you can run ComfyUI on Lepton Cloud Platform easily, e.g.:
 
 ```shell
-lep photon create -n comfy-ui -m photon.py
-lep photon push -n comfy-ui
+lep photon create -n comfyui -m photon.py
+lep photon push -n comfyui
 lep photon run \
-    -n comfy-ui \
+    -n comfyui \
     --resource-shape gpu.a10
     --public
 ```
 
 You can visit [dashboard.lepton.ai](https://dashboard.lepton.ai/) to use the web Dashboard, or use `lep` cli to manage the launched deployment:
 ```shell
-lep deployment status -n comfy-ui
+lep deployment status -n comfyui
 ```
 
 ## Client

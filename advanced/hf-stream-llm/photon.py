@@ -52,9 +52,11 @@ class HfStreamLLM(Photon):
 
         streamer = TextIteratorStreamer(self._tok, skip_prompt=True, timeout=60)
         inputs = self._tok(text, return_tensors="pt").to("cuda")
-        self._generation_queue.put_nowait((
-            streamer,
-            (),
-            dict(inputs, streamer=streamer, max_new_tokens=max_new_tokens),
-        ))
+        self._generation_queue.put_nowait(
+            (
+                streamer,
+                (),
+                dict(inputs, streamer=streamer, max_new_tokens=max_new_tokens),
+            )
+        )
         return streamer

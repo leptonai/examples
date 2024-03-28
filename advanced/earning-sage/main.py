@@ -61,9 +61,11 @@ class EarningSage_Retriver(Photon):
 
         with blocks:
             gr.Markdown("# 🧙🏼 Earning Report Assistant")
-            gr.Markdown("""
+            gr.Markdown(
+                """
                 This is an earning report assistant built for investors can't make the earning call on time. This sample is using Apple 2023 Q2 report. Feel free to reach out to uz@lepton.ai for more advanced features.
-            """)
+            """
+            )
             with gr.Row():
                 chatbot = gr.Chatbot(label="Model")
             with gr.Row():

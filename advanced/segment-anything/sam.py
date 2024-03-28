@@ -229,11 +229,13 @@ class SAM(Photon):
         # The below rendering code is copied from the segment-anything repo to draw the mask
         # on top of the original image.
         sorted_anns = sorted(masks, key=(lambda x: x["area"]), reverse=True)
-        mask_img = np.ones((
-            sorted_anns[0]["segmentation"].shape[0],
-            sorted_anns[0]["segmentation"].shape[1],
-            3,
-        ))
+        mask_img = np.ones(
+            (
+                sorted_anns[0]["segmentation"].shape[0],
+                sorted_anns[0]["segmentation"].shape[1],
+                3,
+            )
+        )
         for ann in sorted_anns:
             mask_img[ann["segmentation"]] = np.random.random(3)
         alpha = 0.35

@@ -6,7 +6,11 @@ from leptonai.photon import Photon, FileParam, get_file_content
 
 
 class ClipInterrogator(Photon):
-    requirement_dependency = ["clip-interrogator==0.6.0", "Pillow"]
+    requirement_dependency = [
+        "clip-interrogator==0.6.0",
+        "Pillow",
+        "numpy<2"
+    ]
 
     def init(self):
         from clip_interrogator import (

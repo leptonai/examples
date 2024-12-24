@@ -38,13 +38,13 @@ python getting-started/counter/counter.py
 - Create a photon and then run it locally with the `lep` CLI command, for example:
 ```bash
 lep photon create -n sam -m advanced/segment-anything/sam.py
-lep photon run -n sam --local
+lep photon runlocal -n sam
 ```
 - Create a photon like the one above, and run it on the cloud:
 ```bash
 lep login # logs into the lepton cloud
 lep photon push -n sam # pushes the photon to the cloud
-lep photon run -n sam --resource-shape gpu.t4 # run it
+lep photon run -n sam --resource-shape gpu.a10 # run it
 ```
 For individual examples, refer to their source files for self-explanatory comments.
 

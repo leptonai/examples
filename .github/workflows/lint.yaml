@@ -25,5 +25,5 @@ jobs:
           pip install black ruff
       - name: Lint
         run: |
-          ruff .
+          ruff check .
           black --check .

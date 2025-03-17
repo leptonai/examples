@@ -25,7 +25,7 @@ lep photon run -n clip-interrogator -m photon.py --local
 Similar to other examples, you can run services on Lepton Cloud Platform easily, e.g.:
 
 ```shell
-lep photon run -n clip-interrogator -m photon.py --resource-shape gpu.t4
+lep photon run -n clip-interrogator -m photon.py --resource-shape gpu.a10
 ```
 
 You can visit [dashboard.lepton.ai](https://dashboard.lepton.ai/) to try out the model.

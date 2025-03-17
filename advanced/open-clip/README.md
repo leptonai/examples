@@ -50,7 +50,7 @@ c.embed_image(url='https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e
 ```bash
 lep login # logs into the lepton cloud
 lep photon push -n clip # pushes the photon to the cloud
-lep photon run -n clip --resource-shape gpu.t4 # run it
+lep photon run -n clip --resource-shape gpu.a10 # run it
 ```
 
 ```python

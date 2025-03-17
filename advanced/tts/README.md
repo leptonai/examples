@@ -21,7 +21,7 @@ Note that if you have a GPU, things will run much faster. When the program runs,
 Similar to other examples, you can run tts with the following command:
 
 ```shell
-lep photon run -n tts -m tts_main.py --resource-shape gpu.t4
+lep photon run -n tts -m tts_main.py --resource-shape gpu.a10
 ```
 
 And visit [dashboard.lepton.ai](https://dashboard.lepton.ai/) to try out the model.

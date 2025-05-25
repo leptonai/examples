@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import torch.distributed as dist
+import os
 from torchvision import datasets, transforms
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader, DistributedSampler
@@ -31,9 +32,20 @@ class MNISTModel(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
-def train(rank, world_size):
-    print(f"Running on rank {rank}.")
-    dist.init_process_group("nccl", rank=rank, world_size=world_size)
+def train():
+    # Initialize process group
+    dist.init_process_group(backend="nccl")
+    
+    # Get local rank from environment variable
+    local_rank = int(os.environ["LOCAL_RANK"])
+    rank = int(os.environ["RANK"])
+    world_size = int(os.environ["WORLD_SIZE"])
+    
+    # Set device
+    torch.cuda.set_device(local_rank)
+    device = torch.device("cuda", local_rank)
+    
+    print(f"Running on rank {rank} (local_rank: {local_rank})")
 
     transform = transforms.Compose([
         transforms.ToTensor(),
@@ -43,15 +55,15 @@ def train(rank, world_size):
     sampler = DistributedSampler(dataset, num_replicas=world_size, rank=rank)
     train_loader = DataLoader(dataset, batch_size=64, sampler=sampler)
 
-    model = MNISTModel().to(rank)
-    model = DDP(model, device_ids=[rank])
+    model = MNISTModel().to(device)
+    model = DDP(model, device_ids=[local_rank])
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     model.train()
     for epoch in range(1, 11):
         sampler.set_epoch(epoch)
         for batch_idx, (data, target) in enumerate(train_loader):
-            data, target = data.to(rank), target.to(rank)
+            data, target = data.to(device), target.to(device)
             optimizer.zero_grad()
             output = model(data)
             loss = F.nll_loss(output, target)
@@ -67,9 +79,5 @@ def train(rank, world_size):
 
     dist.destroy_process_group()
 
-def main():
-    world_size = torch.cuda.device_count()
-    torch.multiprocessing.spawn(train, args=(world_size,), nprocs=world_size, join=True)
-
 if __name__ == "__main__":
-    main()
+    train()

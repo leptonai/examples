@@ -84,6 +84,7 @@ def train():
         torch.save(model.module.state_dict(), "mnist_model.pth")
         print("Model saved as mnist_model.pth")
 
+    dist.barrier()
     dist.destroy_process_group()
 
 if __name__ == "__main__":

@@ -83,8 +83,8 @@ def train():
             loss.backward()
             optimizer.step()
 
+            dist.all_reduce(loss, op=dist.ReduceOp.AVG)
             if rank == 0 and batch_idx % 10 == 0:
-                dist.all_reduce(loss, op=dist.ReduceOp.AVG)
                 print(f"Train Epoch: {epoch} [{batch_idx * len(data)}/{len(train_loader.dataset)} ({100. * batch_idx / len(train_loader):.0f}%)]\tLoss: {loss.item():.6f}")
 
     if rank == 0:

@@ -1,1 +1,2 @@
 datasets
+numpy<2
